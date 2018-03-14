@@ -38,6 +38,6 @@ The `Master Server` provides an HTML5 web client for remote access of connected 
 
 ### System Diagram
 
-This is a bit silly, but I built a diagram illustrating the basic architecture of Self Hosted Remote Desktop.  Essentially, SHRD's master server is intended to fill the roles of a cloud remote desktop service provider, on a much smaller scale.
+This is a bit silly, but I built a diagram illustrating the basic architecture of Self Hosted Remote Desktop.  Essentially, SHRD's `Master Server` is intended to fill the roles of a cloud remote desktop service provider, on a much smaller scale.
 
 ![System Diagram](https://i.imgur.com/anlKuO0.png)
