@@ -1,7 +1,7 @@
 # SelfHostedRemoteDesktop
 **Incomplete.  Non-functional.  Come back later.**
 
-Self Hosted Remote Desktop (SHRD for short) is an open-source remote desktop system I am developing with the goal of reducing my dependence on TeamViewer or similar third-party hosted services for remote computer access.
+Self Hosted Remote Desktop (**SHRD** for short) is an open-source remote desktop system I am developing with the goal of reducing my dependence on TeamViewer or similar third-party hosted services for remote computer access.
 
 ## Comparison with other remote-desktop tools and services
 
