@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Weavers>
+	<Costura LoadAtModuleInit="false">
+		<Unmanaged64Assemblies>
+			turbojpegCLI
+		</Unmanaged64Assemblies>
+		<!--<PreloadOrder>
+			msvcp140.dll
+			vcruntime140.dll
+			turbojpeg.dll
+		</PreloadOrder>-->
+	</Costura>
+</Weavers>

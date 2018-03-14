@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Client - SHRD</title>
+	<script>
+		var clientVersion = "0";
+		var serverVersion = "%APP_VERSION%";
+		var combined_version = clientVersion + serverVersion;
+		window.onerror = function (msg, url, line, charIdx)
+		{
+			try
+			{
+				url = url.replace(/\/\/.*?\//, '//censored_hostname/');
+				alert("An unexpected error has occurred in SHRD" + location.pathname + " (version " + combined_version + ").\nA full refresh may solve the problem (CTRL + F5).\n\nIf you wish to report the error, please SCREENSHOT the browser now.\n\n" + msg + "\nURL: " + url + "\nLine: " + line + "\nChar: " + charIdx);
+			}
+			catch (ex)
+			{
+				alert(ex);
+			}
+		};
+		document.write('<link href="Styles/toastr.min.css?v=' + combined_version + '" rel="stylesheet" />'
+			+ '<link href="Styles/Dialog.css?v=' + combined_version + '" rel="stylesheet" />'
+			+ '<link href="Styles/Client.css?v=' + combined_version + '" rel="stylesheet" />');
+	</script>
+</head>
+<body>
+	<div id="layout_top">
+		<div id="qualityBtn" class="textIcon">Quality</div>
+		<div id="frames" class="textIcon">0</div>
+		<div id="fps" class="textIcon">0</div>
+		<div id="Mbps" class="textIcon">0</div>
+	</div>
+	<div id="layout_main" class="customScroll">
+		<div id="videoFrame">
+			<canvas id="myCanvas" class="videoFrameChild"></canvas>
+		</div>
+	</div>
+	<script>
+		document.write('<script src="Scripts/jquery-3.1.1.min.js?v=' + combined_version + '"><\/script>'
+			+ '<script src="Scripts/jquery.mousewheel.min.js?v=' + combined_version + '"><\/script>'
+			+ '<script src="Scripts/toastr.min.js?v=' + combined_version + '"><\/script>'
+			+ '<script src="Scripts/Dialog.js?v=' + combined_version + '"><\/script>'
+			+ '<script src="Scripts/shared.js?v=' + combined_version + '"><\/script>'
+			+ '<script src="Scripts/KeycodeTranslator.js?v=' + combined_version + '"><\/script>'
+			+ '<script src="Scripts/Client.js?v=' + combined_version + '"><\/script>');
+	</script>
+</body>
+</html>

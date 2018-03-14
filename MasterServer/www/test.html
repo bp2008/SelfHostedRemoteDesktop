@@ -1,0 +1,382 @@
+<!doctype html>
+<html>
+<head>
+	<title>Keyboard Test</title>
+	<script src="Scripts/jquery-3.1.1.min.js"></script>
+	<script src="Scripts/KeycodeTranslator.js"></script>
+	<script type="text/javascript">
+		var lastMouseMoveAt = 0;
+		var frameCounter = 0;
+		var framesThisSecond = 0;
+		$(function ()
+		{
+			/*$(document).on('keydown', function (e)
+			{
+				var keyCode = JsKeycodeToWinKeycode(e.which);
+				console.log(keyCode + " down");
+				//$('#status').text("Down: " + keyCode + ", Modifiers: " + (e.metaKey ? "meta " : "") + (e.ctrlKey ? "ctrl " : "") + (e.altKey ? "alt " : "") + (e.shiftKey ? "shift " : ""));
+				$.ajax('doKeyboardInput?keyCode=' + keyCode + '&up=0');
+				return false;
+			});
+			$(document).on('keyup', function (e)
+			{
+				var keyCode = JsKeycodeToWinKeycode(e.which);
+				console.log(keyCode + " up");
+				//$('#status').text("Up: " + keyCode);
+				$.ajax('doKeyboardInput?keyCode=' + keyCode + '&up=1');
+				return false;
+			});
+			$('#myCanvas').on('mousemove', function (e)
+			{
+				if (new Date().getTime() - 100 < lastMouseMoveAt)
+					return;
+				lastMouseMoveAt = new Date().getTime();
+				var x = e.pageX - $('#myImg').offset().left;
+				var y = e.pageY - $('#myImg').offset().top;
+				$.ajax('mousemove?x=' + x + '&y=' + y);
+			});
+			$('#myCanvas').on('mousedown', function (e)
+			{
+				$.ajax('mousebutton?up=0&btn=' + GetMouseButton(e));
+				return false;
+			});
+			$('#myCanvas').on('mouseup', function (e)
+			{
+				$.ajax('mousebutton?up=1&btn=' + GetMouseButton(e));
+				return false;
+			});*/
+			//$('#myImg').load(function ()
+			//{
+			//	var src = $("#myImg").attr("src");
+			//	console.log("myImg loaded " + src);
+			//	if (src.indexOf("blob") == 0)
+			//		URL.revokeObjectURL(src);
+			//	frameCounter++;
+			//	framesThisSecond++;
+			//	$("#frames").html(frameCounter);
+			//	getImage();
+			//});
+			//$('#myImg').error(function ()
+			//{
+			//	setTimeout(getImage, 1000);
+			//});
+			setInterval(function ()
+			{
+				$("#fps").html(framesThisSecond);
+				framesThisSecond = 0;
+			}, 1000);
+		});
+		function GetMouseButton(e)
+		{
+			if (e.which == 1)
+				return 0;
+			else if (e.which == 3)
+				return 1;
+			else if (e.which == 2)
+				return 2;
+			return 1;
+		}
+		//function getImage()
+		//{
+		//	$('#myImg').attr('src', 'getDesktopImage?method=0&t=' + new Date().getTime());
+		//}
+		function PopupMessage(message)
+		{
+			alert(message);
+		}
+		var submittedImageFragments = 0;
+		var processedImageFragments = 0;
+		var frameSequenceNumberCounter = 0;
+		var nextFrameSequenceNumber = 0;
+		function HandleFragmentedImage(buf, myFrameSequenceNumber, tries)
+		{
+			try
+			{
+				if (nextFrameSequenceNumber != myFrameSequenceNumber)
+				{
+					setTimeout(function () { HandleFragmentedImage(buf, myFrameSequenceNumber, 0); }, 1);
+					return;
+				}
+				if (submittedImageFragments != processedImageFragments)
+				{
+					if (tries > 250)
+					{
+						LogError("Hung HandleFragmentedImage detected. Pushing ahead with possible image corruption.");
+						// TODO: Make this trigger a new "iframe"
+					}
+					else
+					{
+						if (!tries)
+							tries = 0;
+						setTimeout(function () { HandleFragmentedImage(buf, myFrameSequenceNumber, ++tries); }, 1);
+						return;
+					}
+				}
+
+				// Parse input
+				var offsetWrapper = { offset: 1 };
+				var moveFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
+				offsetWrapper.offset += 2;
+				var dirtyFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
+				offsetWrapper.offset += 2;
+				Log("      New Frame (moved: " + moveFragCount + ", dirty: " + dirtyFragCount + ")");
+
+				var moveList = new Array();
+				var dirtList = new Array();
+				for (var i = 0; i < moveFragCount; i++)
+					moveList.push(new MovedImageFragment(buf, offsetWrapper));
+				for (var i = 0; i < dirtyFragCount; i++)
+					dirtList.push(new DirtyImageFragment(buf, offsetWrapper));
+
+				// Handle MoveImageFragments
+				for (var i = 0; i < moveList.length; i++)
+					MoveImageFragment(moveList[i].source, moveList[i].bounds);
+
+				// Handle DirtyImageFragments
+				for (var i = 0; i < dirtList.length; i++)
+				{
+					var dirtyImageFragment = dirtList[i];
+					var tmpImg = document.createElement('img');
+					tmpImg.bounds = dirtyImageFragment.bounds;
+					tmpImg.onload = function ()
+					{
+						processedImageFragments++;
+						URL.revokeObjectURL(this.src);
+						DrawImageFragment(this, this.bounds);
+					}
+					tmpImg.onerror = function ()
+					{
+						processedImageFragments++;
+						URL.revokeObjectURL(this.src);
+						console.log("Failed to decode image fragment");
+						LogError("Failed to decode image fragment");
+					}
+					submittedImageFragments++;
+					tmpImg.src = dirtyImageFragment.imgBlobURL;
+				}
+				nextFrameSequenceNumber++;
+				frameCounter++;
+				framesThisSecond++;
+				$("#frames").html(frameCounter);
+				getImage();
+			}
+			catch (ex)
+			{
+				LogError(ex.toString());
+			}
+		}
+		function DrawImageFragment(tmpImg, regionRect)
+		{
+			var canvas = $("#myCanvas").get(0);
+			var requiredWidth = regionRect.X + regionRect.Width;
+			var requiredHeight = regionRect.Y + regionRect.Height;
+			if (requiredWidth > canvas.width || requiredHeight > canvas.height)
+			{
+				LogError("Resizing canvas from " + canvas.width + "x" + canvas.height + " to " + requiredWidth + "x" + requiredHeight);
+				canvas.width = requiredWidth;
+				canvas.height = requiredHeight;
+			}
+			var context2d = canvas.getContext("2d");
+			context2d.drawImage(tmpImg, regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
+		}
+		function MoveImageFragment(srcPoint, regionRect)
+		{
+			var canvas = $("#myCanvas").get(0);
+			var context2d = canvas.getContext("2d");
+			context2d.drawImage(canvas, srcPoint.X, srcPoint.Y, regionRect.Width, regionRect.Height, regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
+		}
+		function MovedImageFragment(buf, offsetWrapper)
+		{
+			this.bounds = new ImageRegionRectangle(buf, offsetWrapper);
+			this.source = new ImageSourcePoint(buf, offsetWrapper);
+		}
+		function DirtyImageFragment(buf, offsetWrapper)
+		{
+			this.bounds = new ImageRegionRectangle(buf, offsetWrapper);
+			var imgLength = new DataView(buf, offsetWrapper.offset, 4).getInt32(0, false);
+			offsetWrapper.offset += 4;
+			if (imgLength <= 0)
+			{
+				this.imgBlobURL = "";
+				console.log(imgLength + "-byte image fragment received");
+				LogError(imgLength + "-byte image fragment received");
+			}
+			else
+			{
+				Log("   buf.byteLength: " + buf.byteLength + ", offset: " + offsetWrapper.offset + ", imgLength: " + imgLength + ", calc length: " + (offsetWrapper.offset + imgLength));
+				var imgView = new Uint8Array(buf, offsetWrapper.offset, imgLength);
+				offsetWrapper.offset += imgLength;
+				var imgBlob = new Blob([imgView], { type: 'image/jpeg' });
+				this.imgBlobURL = URL.createObjectURL(imgBlob);
+			}
+		}
+		function ImageSourcePoint(buf, offsetWrapper)
+		{
+			this.X = new DataView(buf, offsetWrapper.offset, 2).getInt16(0, false);
+			offsetWrapper.offset += 2;
+			this.Y = new DataView(buf, offsetWrapper.offset, 2).getInt16(0, false);
+			offsetWrapper.offset += 2;
+		}
+		function ImageRegionRectangle(buf, offsetWrapper)
+		{
+			this.X = new DataView(buf, offsetWrapper.offset, 2).getInt16(0, false);
+			offsetWrapper.offset += 2;
+			this.Y = new DataView(buf, offsetWrapper.offset, 2).getInt16(0, false);
+			offsetWrapper.offset += 2;
+			this.Width = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
+			offsetWrapper.offset += 2;
+			this.Height = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
+			offsetWrapper.offset += 2;
+		}
+		// Log
+		function Log(msg)
+		{
+			$("#myLog").append("<div>" + msg + "</div>");
+		}
+		function LogError(msg)
+		{
+			$("#myErrLog").append("<div style=\"color:red;\">" + msg + "</div>");
+		}
+		// Websocket
+		var socketHost = "192.168.0.159";
+		//var socketHost = location.hostname;
+		var socket;
+		var WebSocket_Connecting = 0;
+		var WebSocket_Open = 1;
+		var WebSocket_Closing = 2;
+		var WebSocket_Closed = 3;
+		var ws_is_ready = false;
+		// Equivalent to the "Command" enum on the server
+		var Command = new Object();
+		Command.GetScreenCapture = 0;
+		Command.ReproduceUserInput = 1;
+		Command.GetDesktopInfo = 2;
+		Command.Error_Unspecified = 255;
+		$(function ()
+		{
+			if (typeof WebSocket != "function")
+			{
+				alert("Your browser does not support web sockets, and therefore will not work with this page.");
+				return;
+			}
+			socket = new WebSocket("ws://" + socketHost + ":8089/SHRD");
+			//socket = new WebSocket("ws:/" + location.hostname + ":8088/WebSocketProxy");
+			socket.binaryType = "arraybuffer";
+			socket.onopen = function (event)
+			{
+				console.log("WebSocket Open");
+				// TODO: Send auth info here
+				ws_is_ready = true;
+				getImage(true);
+				getImage();
+				getImage();
+			}
+			socket.onclose = function (event)
+			{
+				var errmsg = "WebSocket Closed. (Code " + event.code + (event.reason ? (" " + event.reason) : "") + ")";
+				PopupMessage(errmsg);
+				console.log(errmsg);
+			}
+			socket.onerror = function (event)
+			{
+				console.log("WebSocket Error");
+			};
+			socket.onmessage = function (event)
+			{
+				HandleWSMessage(event.data);
+			};
+		});
+		function HandleWSMessage(data)
+		{
+			var cmdView = new Uint8Array(data, 0, 1);
+			if (cmdView.length == 0)
+			{
+				PopupMessage("empty message from server");
+				return;
+			}
+			switch (cmdView[0])
+			{
+				case Command.GetScreenCapture:
+					HandleFragmentedImage(data, frameSequenceNumberCounter++, 0);
+					break;
+				case Command.ReproduceUserInput:
+					PopupMessage("ReproduceUserInput message received from server. This should not ever happen.");
+					break;
+				case Command.GetDesktopInfo:
+					PopupMessage("GetDesktopInfo message received from server.");
+					break;
+				case Command.Error_Unspecified:
+					PopupMessage("Error_Unspecified message received from server");
+					break;
+				default:
+					PopupMessage("Unidentifiable message received from server, starting with byte: " + cmdView[0]);
+					break;
+			}
+		}
+		function getImage(fullRefresh)
+		{
+			var arg = new Uint8Array(3);
+			arg[0] = Command.GetScreenCapture;
+			arg[1] = ImgFlags.Grayscale;
+			if (fullRefresh)
+				arg[1] = arg[1] | ImgFlags.Refresh;
+			arg[2] = 75; // Jpeg Quality (1-100)
+			SendToWebSocket(arg);
+		}
+		function getDesktopInfo()
+		{
+			var arg = new Uint8Array(1);
+			arg[0] = Command.GetDesktopInfo;
+			SendToWebSocket(arg);
+		}
+		function SendToWebSocket(message)
+		{
+			if (typeof socket == "undefined" || !socket)
+				return;
+			switch (socket.readyState)
+			{
+				case WebSocket_Open:
+					if (ws_is_ready)
+						socket.send(message);
+					else
+						PopupMessage("Authentication error");
+					break;
+				case WebSocket_Connecting:
+					PopupMessage("WebSocket is still connecting.");
+					break;
+				case WebSocket_Closing:
+					PopupMessage("WebSocket is closing.");
+					break;
+				case WebSocket_Closed:
+					PopupMessage("WebSocket is closed.");
+					break;
+			}
+		}
+		// Enums
+		var ByteFlagConstants =
+			{
+				b0000_0001: 1
+				, b0000_0010: 2
+				, b0000_0100: 4
+				, b0000_1000: 8
+				, b0001_0000: 16
+				, b0010_0000: 32
+				, b0100_0000: 64
+				, b1000_0000: 128
+			}
+		var ImgFlags =
+			{
+				Grayscale: ByteFlagConstants.b0000_0001
+				, Color440: ByteFlagConstants.b0000_0010
+				, Color444: ByteFlagConstants.b0000_0001 | ByteFlagConstants.b0000_0010
+				, Refresh: ByteFlagConstants.b0000_0100 // A full desktop refresh is requested, not differential
+			}
+	</script>
+</head>
+<body>
+	<div>Frames: <span id="frames">0</span>, FPS: <span id="fps">0</span></div>
+	<div><canvas id="myCanvas"></canvas></div>
+	<div id="myLog" style="display: inline-block; width: 1000px; height: 500px; overflow: scroll;"></div>
+	<div id="myErrLog" style="display: inline-block; width: 1000px; height: 500px; overflow: scroll;"></div>
+</body>
+</html>

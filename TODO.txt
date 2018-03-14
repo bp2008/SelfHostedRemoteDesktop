@@ -1,0 +1,98 @@
+SelfHostedRemoteDesktop TODO
+---------------------------------
+Terminology:
+Master Server: The master server which is the foundation of the SHRD system, which everything talks to.
+Client: Application used by the end user to connect to the Master Server.
+Service/Host: The SHRD Service running on a remote computer.  It connects to the master server.
+Streamer: The SHRD Streamer, which is a process spawned by the Service for the purposes of interacting with the desktop.  It is the Streamer's responsibility to do things that the Service cannot do alone, or to do potentially unstable things that would affect the stability of the Service.
+
+---------------------------------
+
+Teach Client.html to render the remote cursor wherever it is with the correct icon.
+
+Teach Client.html to render the local cursor with the correct icon to match the remote icon.
+
+Enable mouse forwarding for normal buttons.
+Enable mouse forwarding for back and forward buttons.
+
+Enable keyboard key forwarding.
+* Normal keys
+* Key state (Ctrl, Shift, Alt)
+* Key combinations (Ctrl + C)
+* See what can be done for hotkeys.  I doubt I can intercept things like Alt+Tab, or maybe even Alt+Anything but I should be able to make a shortcut menu for hotkeys in the top bar.
+* Ctrl + Alt + Delete
+
+Verify that I can use the mouse and keyboard at the login screen.
+
+Verify that I can use the mouse and keyboard and see the screen during a UAC prompt.
+
+Implement a method of clipboard sharing (for text, at least).
+* Retrieve the remote clipboard (large items (> 100K ?) require confirmation of some sort)
+* Paste text into the browser, click "transfer clipboard text" button in browser, text is copied to remote host and "copied" onto the clipboard.  Paste can then be performed via normal methods (hotkey or menu)
+* Flash plugin to make text copy and paste more streamlined (optional)
+* Investigate any new APIs for clipboard access.  Not that I expect them to exist.
+
+Implement a method of file upload to a remote host
+* Start file upload by dragging files onto the browser.
+* Upload status is shown in the browser and on the remote display.
+* Remote status display contains a link to the folder where the files are stored.
+
+Implement a method of file download from a remote host
+* Maybe via clipboard.  Copy file(s), retrieve the remote clipboard to see download link(s)
+
+Master Server needs proper User Administration capabilities.
+* fetch/add/remove/update users
+* Flag to require users to verify by entering a code sent by email.  Not triggered if their IP address has been verified.  Not triggered if their web browser contains a secret key in localStorage.
+* The original admin user can be edited and even have its user name changed, but not be deleted.
+* Password changing by the user
+
+Master Server needs Group Administration capabilities.
+* fetch/add/remove/update groups
+* List/edit the computers belonging to a group
+* List/edit the users with access to a group
+
+Master Server needs Computer Administration capabilities.
+* List all computers
+* List groups a computer belongs to.
+* Option to remotely uninstall a Host (Service / computer)
+* Consider an option to delete a computer.  Current design would have that computer
+
+Master Server needs IP banning capability, to mitigate abuse.
+
+Master Server needs extensive logging and monitoring capabilities:
+* Log connections from existing Hosts
+* Log connections from new Hosts
+* Log login attempts (including user name and whether or not successful)
+* Admin email sent upon creation of a user or change to its permission.
+* Emails sent to user upon change of user's password or upon change of user's email address (for email changes, a message will be sent to both the old and new addresses).
+* Users can view, but not edit, their own login attempt history.
+* Log accesses to each computer (date, time, duration, who connected)
+
+Hosts need logging capabilities:
+* Log login attempts (including user name and whether or not successful), viewable in their local GUIs.
+* Log incoming remote desktop connections (date, time, duration, who connected)
+
+Wire up the Service to connect to the MasterServer.
+
+Implement a secure authentication scheme for the Services that can be completely automated and at the same time robust.  I don't want it to be insecure, but I also don't want to lose connectivity to remote machines just because the Master Server had to be replaced or because a Service lost its private key.
+* The master server should use a valid SSL certificate (include a LetsEncrypt client).  This prevents man-in-the-middle attacks from fooling a client (web browser).
+* Services (remote computers) will also use SSL (TLS 1.2, specifically) to communicate with the server.  Certificate validation will be enabled by default.  This prevents man-in-the-middle attacks from fooling the Services.  Services will periodically (every 30 minutes?) attempt to reconnect to the master server even if the certificate is invalid, so if connectivity is lost due to an expired certificate, full connectivity can still be restored by renewing or replacing the certificate.
+* There needs to be a mode for Services to skip certificate validation.  It will be configured in the master server, and written directly into every service executable produced by the master server.
+To authenticate a Service (know they are who they say they are):
+* Each Service keeps a self-signed certificate with a long expiration (like 100 years).
+* When a service connects to the master server, the master server will require client certificate authentication from the service.  This is built into TLS 1.2 and I should be able to figure a way to use it.  If the service's certificate has not been seen before, then the service is treated as a new computer.  This means the service must provide a shared secret that was embedded into its executable at the time when it was originally downloaded from the Master Server.  Additionally, an email alert is sent to the administrator whenever a new computer is added this way.  The new computer will not belong to any groups, and must be moved into a group by the administrator before normal users may see it and connect to it.
+* For temporary remote support purposes, the Service will be a simple desktop application (not an actual Windows Service) and it will not save a certificate of its own (though perhaps I will need to create a temporary one to satisfy the client certificate authentication).  The remote support version of SHRD will use a different shared secret from normal.  The remote support version will be locked to a "Remote Support" group, which will be a special group that behaves differently from other groups, though specific users can be allowed to access computers in the group just like any other group. A log of a remote support service's activity will be kept by the Master Server even after the machine has long since been disconnected (the same applies to any normal Service).
+
+Master Server needs to be able to query the Service for things:
+* CPU / Memory / Disk usage
+* List of processes
+
+The client needs to be able to open a web socket connection to the Master Server, providing arguments as part of the web socket URL (including authentication).  Master Server verifies that the user has access to the requested machine, then arranges a proxied Web Socket connection to the remote machine's SHRD Service.  The Service opens a connection to the Master Server to accomodate this, then feeds that connection into its own Web Socket Server.
+
+
+---------------------------------
+Done:
+---------------------------------
+Teach Client.html to read the DesktopInfo.
+Client.html needs to stop streaming while the tab is inactive, and restart streaming when the tab is reactivated.
+Finish converting interprocess communication from synchronous to asynchronous.

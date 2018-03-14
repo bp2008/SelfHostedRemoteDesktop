@@ -1,0 +1,106 @@
+﻿body
+{
+	margin: 0px;
+	background-color: #f0f0f0;
+	font: 12px sans-serif;
+	color: #000000;
+}
+
+#adminLayoutTable
+{
+	border-collapse: separate;
+	width: 100%;
+	background-color: #ffffff;
+}
+
+#layout_top
+{
+	box-sizing: border-box;
+	top: 0px;
+	left: 0px;
+	padding: 15px 10px 13px 10px;
+	border-bottom: 2px dotted #dddddd;
+	background: #66BB66;
+}
+
+#layout_left
+{
+	width: 120px;
+	border-right: 1px solid #f0f0f0;
+	vertical-align: top;
+	padding: 20px 5px 20px 5px;
+}
+
+#layout_body
+{
+	vertical-align: top;
+	padding: 20px 4px 20px 4px;
+}
+
+#layout_right
+{
+	width: 0px;
+}
+
+#layout_bottom
+{
+	border-top: 2px dotted #f0f0f0;
+	text-align: center;
+	padding: 4px;
+}
+
+#layout_top .title
+{
+	font: 25px sans-serif;
+	color: #ffffff;
+	font-weight: bold;
+}
+
+#layout_top .version
+{
+	font: 15px sans-serif;
+	color: #eeeeee;
+	font-weight: bold;
+}
+
+table
+{
+	empty-cells: show;
+}
+
+input[type='button']
+{
+	color: #000000;
+	background: #F7F7F7;
+	border-top: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+	input[type='button']:hover
+	{
+		background: #66BB66;
+		color: #ffffff;
+	}
+
+	input[type='button']:active
+	{
+		background: #66AA66;
+		color: #ffffff;
+	}
+
+.hint
+{
+	color: #999;
+	font-style: italic;
+}
+#layout_left .menuItem
+{
+	margin: 4px 0px;
+	font-size: 16px;
+}
+#layout_left .menuItem a
+{
+	text-decoration: none;
+}
