@@ -14,16 +14,29 @@ Self Hosted Remote Desktop (**SHRD** for short) is an open-source remote desktop
 | Remotely access many operating systems  | Windows 8+ only | ✅ Cross-Platform | ✅ Cross-Platform |
 | Run your own centralized server         | ✅ Windows or Linux | ❌ | ❌ |
 | Use without a centralized server (direct connections) | ❌ | ❌ | ✅ |
-| Peer-to-peer connections for minimal latency | ❌ | ✅ | ✅ |
+| Peer-to-peer connections for minimal latency | ❌ (eventually) | ✅ | ✅ |
 | Web client                           | ✅ | ✅ | ❌ |
 | Native clients                       | ❌ | ✅ | ✅ |
 | Unlimited concurrent sessions        | ✅ | ❌ | ✅ |
 | Remote audio                         | ❌ | ✅ | ❌ |
 
-Of course, the above table is a little unfair because TeamViewer has had years of professional (paid) development and has amassed many features I do not care about, such as remote printing
+Of course, the above table is a little unfair because TeamViewer has had years of professional (paid) development and has amassed many features I do not care about, such as remote printing.
 
+## Design
 
-## System Diagram
+SHRD has two major components.  The `Host Service` and the `Master Server`.
+
+### Host Service
+SHRD's `Host Service` is the program which runs on each computer that is to be remotely accessed.  Each `Host Service` maintains a TCP connection to the `Master Server`, which enables two-way communication through firewalls.
+
+Initially only Windows 8 and 10 will be supported.  Most of the responsibilities of a `Host Service` involve accessing operating system APIs for desktop video capture and keyboard/mouse emulation, so it is not easy to make this cross-platform.
+
+### Master Server
+SHRD's `Master Server` is being designed to be lightweight and cross-platform using the Mono framework, so it can be run on an inexpensive cloud server or even a Raspberry Pi.  It requires only one TCP port to be open to the outside world, for HTTPS traffic (typically port 443).
+
+The `Master Server` provides an HTML5 web client for remote access of connected computers.  It is being designed such that native clients are a possibility for the future, even without significant modification to the `Master Server` code.  The `Master Server` also provides an administrative web interface for user and computer management. 
+
+### System Diagram
 
 This is a bit silly, but I built a diagram illustrating the basic architecture of Self Hosted Remote Desktop.
 
