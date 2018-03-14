@@ -32,12 +32,12 @@ SHRD's `Host Service` is the program which runs on each computer that is to be r
 Initially only Windows 8 and 10 will be supported.  Most of the responsibilities of a `Host Service` involve accessing operating system APIs for desktop video capture and keyboard/mouse emulation, so it is not easy to make this cross-platform.
 
 ### Master Server
-SHRD's `Master Server` is being designed to be lightweight and cross-platform using the Mono framework, so it can be run on an inexpensive cloud server or even a Raspberry Pi.  It requires only one TCP port to be open to the outside world, for HTTPS traffic (typically port 443).
+SHRD's `Master Server` is being designed to be lightweight and cross-platform using the Mono framework, so it can be run on an inexpensive cloud server or even a Raspberry Pi.  It requires only one TCP port to be open to the outside world, for HTTPS traffic (typically port 443).  A reverse-proxy server like nginx will be compatible, but not required.
 
-The `Master Server` provides an HTML5 web client for remote access of connected computers.  It is being designed such that native clients are a possibility for the future, even without significant modification to the `Master Server` code.  The `Master Server` also provides an administrative web interface for user and computer management. 
+The `Master Server` provides an HTML5 web client for remote access of connected computers.  Native clients are a possibility for the future, even without significant modification to the `Master Server` code.  The `Master Server` also provides an administrative web interface for user and computer management.
 
 ### System Diagram
 
-This is a bit silly, but I built a diagram illustrating the basic architecture of Self Hosted Remote Desktop.
+This is a bit silly, but I built a diagram illustrating the basic architecture of Self Hosted Remote Desktop.  Essentially, SHRD's master server is intended to fill the roles of a cloud remote desktop service provider, on a much smaller scale.
 
 ![System Diagram](https://i.imgur.com/anlKuO0.png)
