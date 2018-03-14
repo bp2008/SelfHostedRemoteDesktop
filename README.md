@@ -24,7 +24,7 @@ Of course, the above table is a little unfair because TeamViewer has had years o
 
 ## Design
 
-SHRD has two major components.  The `Host Service` and the `Master Server`.
+SHRD has two major components:  The `Host Service` and the `Master Server`.
 
 ### Host Service
 SHRD's `Host Service` is the program which runs on each computer that is to be remotely accessed.  Each `Host Service` maintains a TCP connection to the `Master Server`, which enables two-way communication through firewalls.
