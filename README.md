@@ -6,7 +6,7 @@ Self Hosted Remote Desktop (**SHRD** for short) is an open-source remote desktop
 ## Comparison with other remote-desktop tools and services
 
 |                               | SHRD     | TeamViewer | VNC          |
-| ----------------------------- |:--------:|:----------:|:------------:|
+| ----------------------------- | -------- | ---------- | ------------ |
 | Free version available        | ✅ | ✅ | ✅ |
 | Free for commercial use       | ✅ | ❌ | ✅ |
 | Open Source                   | ✅ | ❌ | ✅ |
