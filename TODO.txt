@@ -2,17 +2,18 @@ SelfHostedRemoteDesktop TODO
 ---------------------------------
 Terminology:
 Master Server: The master server which is the foundation of the SHRD system, which everything talks to.
-Client: Application used by the end user to connect to the Master Server.
-Service/Host: The SHRD Service running on a remote computer.  It connects to the master server.
-Streamer: The SHRD Streamer, which is a process spawned by the Service for the purposes of interacting with the desktop.  It is the Streamer's responsibility to do things that the Service cannot do alone, or to do potentially unstable things that would affect the stability of the Service.
+(Web) Client: Application used by the end user to connect to the Master Server.
+Host (Service): The SHRD Service running on a remote computer.  It connects to the Master Server.
+Streamer: The SHRD Streamer, which is a process spawned by the Host Service for the purposes of interacting with the desktop.  It is the Streamer's responsibility to do things that the Service cannot do alone, or to do potentially unstable things that would affect the stability of the Host Service.
 
 ---------------------------------
+
+The HostConnect authentication process should verify the signature BEFORE committing the computer to the database.
 
 Teach Client.html to render the remote cursor wherever it is with the correct icon.
 
 Teach Client.html to render the local cursor with the correct icon to match the remote icon.
 
-Enable mouse forwarding for normal buttons.
 Enable mouse forwarding for back and forward buttons.
 
 Enable keyboard key forwarding.
@@ -27,23 +28,29 @@ Verify that I can use the mouse and keyboard at the login screen.
 Verify that I can use the mouse and keyboard and see the screen during a UAC prompt.
 
 Implement a method of clipboard sharing (for text, at least).
+* Clipboard content should be split into small (4K? 16K?) packets with a sliding confirmation window (to create natural interleaving) and reassembled at the other end.
+* There should be a maximum size for clipboard transfer of non-files (1 MB? 8 MB?)
 * Retrieve the remote clipboard (large items (> 100K ?) require confirmation of some sort)
 * Paste text into the browser, click "transfer clipboard text" button in browser, text is copied to remote host and "copied" onto the clipboard.  Paste can then be performed via normal methods (hotkey or menu)
-* Flash plugin to make text copy and paste more streamlined (optional)
-* Investigate any new APIs for clipboard access.  Not that I expect them to exist.
+* Investigate any new web APIs for clipboard access.  Not that I expect them to exist.
+  * There is an API to put text on the clipboard, but not to retrieve text from it.
+* Compress with DEFLATE or GZIP.
 
 Implement a method of file upload to a remote host
 * Start file upload by dragging files onto the browser.
 * Upload status is shown in the browser and on the remote display.
 * Remote status display contains a link to the folder where the files are stored.
+* File transfers must be cancelable.
+* One file transfer at a time (for network performance reasons), with a queue.
+* Compress with DEFLATE or GZIP.
 
 Implement a method of file download from a remote host
 * Maybe via clipboard.  Copy file(s), retrieve the remote clipboard to see download link(s)
 
-Master Server needs proper User Administration capabilities.
+Master Server needs User Administration capabilities.
 * fetch/add/remove/update users
-* Flag to require users to verify by entering a code sent by email.  Not triggered if their IP address has been verified.  Not triggered if their web browser contains a secret key in localStorage.
-* The original admin user can be edited and even have its user name changed, but not be deleted.
+* Flag to require users to verify by entering a code sent by email.  Not triggered if their IP address has been verified.  Not triggered if their web browser contains a secret key in localStorage.  Entering the emailed code or logging in with a secret key from localStorage verifies the IP address used to log in.
+* The original admin user can be edited and even have its user name changed, but not be deleted or have its admin flag removed.
 * Password changing by the user
 
 Master Server needs Group Administration capabilities.
@@ -54,10 +61,88 @@ Master Server needs Group Administration capabilities.
 Master Server needs Computer Administration capabilities.
 * List all computers
 * List groups a computer belongs to.
-* Option to remotely uninstall a Host (Service / computer)
-* Consider an option to delete a computer.  Current design would have that computer
+* Option to remotely uninstall a Host Service (computer)
+* Consider an option to delete a computer.
+  * Should it actually be deleted from the database, or just flagged as deleted?
+  * What to do with history logs involving the computer?
+  * Deleting a computer should also disconnect it, if it is currently online, and make absolutely sure it doesn't reconnect during an odd timing window and stay connected after being deleted.
+  * Current design would have that computer automatically re-add itself with the same Public Key as it had before, but new history and no assigned groups.  So perhaps deleting a computer should also uninstall the Host Service.
 
 Master Server needs IP banning capability, to mitigate abuse.
+* Manual IP banning
+* Automatic IP banning, or at least automatic recommendations presented to administrators to start with.
+
+Master Server may need "new Host" throttling ability.
+* Prevents excessive database bloating if a deployment key is leaked and used maliciously.
+* Maybe new host additions should be denied unless a "new host credit" is explicitly added by an administrator.
+* No single-use keys.  I want to be able to provision one deployment exe and use it on multiple machines.
+* Global throttling of new host additions (1 per second? 1 per 5 seconds? 2 per 30 seconds? 3 per minute? longer?)
+* Per-IP throttling of new host additions (2x the global throttle timespan? same as global throttle timespan?)
+* Maybe, instead of throttling, an admin-configurable host limit (starting at 100? 250?), after which no new permanent hosts may be added.  This would be easier to implement and have less impact on normal operations.
+  * The status page should show the current hosts and host limit.  Extra-visible if the limit is reached (red notice bar at the top?)
+
+Master Server needs permanent host provisioning:
+* Permanent host downloads are secured.  A download link must be provisioned by an existing user, hidden behind a temporary (24hr/configurable) long-keyed URL, designed to be copy/pasted either by IM, Email, or temporary host service.  Each download link points to a real item on the file system (e.g. "WebRoot/HostDL/LONG_KEY/SHRD.exe").  The long random URL prevents random people from downloading the host exe.  The files expire eventually, and are deleted from the server.
+* Each provisioned permanent-host executable contains a long security key that is always sent to the server during HostConnect's authentication protocol.
+  * The key verifies the host service as one that came from this Master Server, and is required in order for a host to be added to the host database (making the host "permanent").  The key defines which groups the computer will start in.
+  * If a host exe is compromised (leaked to unauthorized persons), the key can be deactivated (and reactivated) or downgraded to a temporary installation key, preventing new permanent hosts from being added using it.
+    * Previously attached hosts remain attached regardless of the key they have.  But in the computer list they appear with a warning sign if their security key has been deactivated.
+    * HostConnect rejects new computers that use a deactivated key.
+  * The last-used key is kept in the Computer record of all permanent hosts, so that usage of keys can be monitored (influencing the decision to disable or downgrade a key).
+  
+When running the Host Service executable interactively, it checks its embedded configuration data.
+  If it sees a permanent host flag:
+  {
+    * Checks for the existence of the installed service.
+    If installed service is found:
+    {
+      If the installed service is the same exe that was just opened interactively:
+        * Open the service manager.
+      Else
+        * Assume the intent is to update/replace the existing service
+        * Stop service, if it is running
+        * Copy self, overwriting service executable
+        * Start service, even if it didn't stop it earlier
+        * Exit
+    }
+    else if installed service is not found
+    {
+        * Assume the intent is to perform initial installation.
+        * Copy self to Program Files/SHRD, if it isn't already running from there.
+        * Install service
+        * Start service
+        * Exit
+    }
+  }
+  else if NO permanent host flag
+  {
+    * Checks for the existence of the installed service.
+    If installed service is found:
+    {
+      * Refuse to run, citing the existence of a permanent host installation.
+    }
+    else
+    {
+      * Just proceed to connect to server without creating a public key.  Indicate in the authentication response the intent to act as a temporary host, and send a fake signature (e.g. signature = GetBytes("TEMPORARY"))
+    }
+  }
+
+Master Server needs a method of temporary host provisioning for one-off remote support cases.
+* No permanent installation for the user.  No client public key.  No "computer" record in the DB.  The Web Socket Server doesn't listen for incoming connections.
+* Requires a long security key embedded in the exe similar to the one generated with permanent host provisioning.  A temporary-host security key is the same as a permanent-host security key, except in the database it is flagged for temporary host additions only.
+* Temporary host downloads:
+  * Needs to be EASY, doable over the phone - no entering of long keys.
+    * E.g. User loads root of web site.  There's a big green button labeled "Get Support" at the very top.  Clicking this opens a web socket connection and puts the user in a support queue.  There can be a text box for name, etc.  Admin must open the support queue and click a button to provision a unique support exe for the user.  The user is the only person sent the download link, and it expires and is deleted after 10 minutes.
+* Maybe an admin can convert a temporary host to a permanent host.
+  * The security key automatically upgrades to a permanent-host key.
+  * The temporary host is instructed by the Master Server to perform a full installation.  The temporary host simply runs itself with an install argument which overrides the "permanent host" flag in the embedded configuration and causes service installation and start.  At this point the Master Server has both temporary and permanent records for the host, and the process is complete; The admin can close the temporary host client and switch to the permanent installation.
+* Manual provisioning of temporary host downloads, similar to permanent host provisioning, except the download links can be sent to specific users.
+* Seems easily abusable by a malicious attacker: flood the server with temporary host connections.  Mitigated by the long key requirement, so a compromised exe can be disabled.
+* Maybe have a global limit of (25?) concurrent temporary hosts.
+* Maybe have a per-ip limit of (5?) concurrent temporary hosts.
+* Maybe require admins to add a "host download credit" or temporarily enable support host downloads (automatic shutoff after 5 or 10 minutes).
+
+There needs to be a simple internal version numbering scheme.  Int(32? 16?) value.  Starting at 1, +1 with each release. Master Server knows which is the minimum supported version.  Host sends its version as URL parameter or part of POST body.  Master Server can then reject with reason being that an update is required.
 
 Master Server needs extensive logging and monitoring capabilities:
 * Log connections from existing Hosts
@@ -65,19 +150,23 @@ Master Server needs extensive logging and monitoring capabilities:
 * Log login attempts (including user name and whether or not successful)
 * Admin email sent upon creation of a user or change to its permission.
 * Emails sent to user upon change of user's password or upon change of user's email address (for email changes, a message will be sent to both the old and new addresses).
-* Users can view, but not edit, their own login attempt history.
+* Users can view, but not edit, their own login attempt history.  Admins can view all users' history, but not edit (history can't be pruned, that would be a security hole).
 * Log accesses to each computer (date, time, duration, who connected)
 
 Hosts need logging capabilities:
-* Log login attempts (including user name and whether or not successful), viewable in their local GUIs.
+* Log direct login attempts, if direct login is supported. (including user name and whether or not successful), viewable in their local GUIs.
 * Log incoming remote desktop connections (date, time, duration, who connected)
+
+Hosts need the ability to require Windows Authentication from Clients.
+* Clients need the ability to save Host credentials (stored in-the-client, encrypted by a key that is itself encrypted by the user credentials).
 
 Wire up the Service to connect to the MasterServer.
 
 Implement a secure authentication scheme for the Services that can be completely automated and at the same time robust.  I don't want it to be insecure, but I also don't want to lose connectivity to remote machines just because the Master Server had to be replaced or because a Service lost its private key.
 * The master server should use a valid SSL certificate (include a LetsEncrypt client).  This prevents man-in-the-middle attacks from fooling a client (web browser).
 * Services (remote computers) will also use SSL (TLS 1.2, specifically) to communicate with the server.  Certificate validation will be enabled by default.  This prevents man-in-the-middle attacks from fooling the Services.  Services will periodically (every 30 minutes?) attempt to reconnect to the master server even if the certificate is invalid, so if connectivity is lost due to an expired certificate, full connectivity can still be restored by renewing or replacing the certificate.
-* There needs to be a mode for Services to skip certificate validation.  It will be configured in the master server, and written directly into every service executable produced by the master server.
+* There needs to be a mode for Services to skip certificate validation, for installations where a DNS name is not used.  It will be configured in the master server, and written directly into every service executable produced by the master server.
+
 To authenticate a Service (know they are who they say they are):
 * Each Service keeps a self-signed certificate with a long expiration (like 100 years).
 * When a service connects to the master server, the master server will require client certificate authentication from the service.  This is built into TLS 1.2 and I should be able to figure a way to use it.  If the service's certificate has not been seen before, then the service is treated as a new computer.  This means the service must provide a shared secret that was embedded into its executable at the time when it was originally downloaded from the Master Server.  Additionally, an email alert is sent to the administrator whenever a new computer is added this way.  The new computer will not belong to any groups, and must be moved into a group by the administrator before normal users may see it and connect to it.
@@ -89,10 +178,10 @@ Master Server needs to be able to query the Service for things:
 
 The client needs to be able to open a web socket connection to the Master Server, providing arguments as part of the web socket URL (including authentication).  Master Server verifies that the user has access to the requested machine, then arranges a proxied Web Socket connection to the remote machine's SHRD Service.  The Service opens a connection to the Master Server to accomodate this, then feeds that connection into its own Web Socket Server.
 
-
 ---------------------------------
 Done:
 ---------------------------------
+Enable mouse forwarding for normal buttons.
 Teach Client.html to read the DesktopInfo.
 Client.html needs to stop streaming while the tab is inactive, and restart streaming when the tab is reactivated.
 Finish converting interprocess communication from synchronous to asynchronous.
