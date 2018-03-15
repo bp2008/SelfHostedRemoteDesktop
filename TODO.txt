@@ -123,7 +123,8 @@ When running the Host Service executable interactively, it checks its embedded c
     }
     else
     {
-      * Just proceed to connect to server without creating a public key.  Indicate in the authentication response the intent to act as a temporary host, and send a fake signature (e.g. signature = GetBytes("TEMPORARY"))
+      * Check for other running SHRD instances and offer to "cancel" or to "kill the existing processes and continue".
+      * Proceed to connect to server without creating a public key.  Indicate in the authentication response the intent to act as a temporary host, and send a fake signature (e.g. signature = GetBytes("TEMPORARY"))
     }
   }
 
@@ -135,14 +136,11 @@ Master Server needs a method of temporary host provisioning for one-off remote s
     * E.g. User loads root of web site.  There's a big green button labeled "Get Support" at the very top.  Clicking this opens a web socket connection and puts the user in a support queue.  There can be a text box for name, etc.  Admin must open the support queue and click a button to provision a unique support exe for the user.  The user is the only person sent the download link, and it expires and is deleted after 10 minutes.
 * Maybe an admin can convert a temporary host to a permanent host.
   * The security key automatically upgrades to a permanent-host key.
-  * The temporary host is instructed by the Master Server to perform a full installation.  The temporary host simply runs itself with an install argument which overrides the "permanent host" flag in the embedded configuration and causes service installation and start.  At this point the Master Server has both temporary and permanent records for the host, and the process is complete; The admin can close the temporary host client and switch to the permanent installation.
-* Manual provisioning of temporary host downloads, similar to permanent host provisioning, except the download links can be sent to specific users.
-* Seems easily abusable by a malicious attacker: flood the server with temporary host connections.  Mitigated by the long key requirement, so a compromised exe can be disabled.
+  * The temporary host is instructed by the Master Server to perform a full installation.  The temporary host simply runs itself with an install argument which overrides the "permanent host" flag in the embedded configuration and causes service installation and start.  At this point the Master Server has both temporary and permanent records for the host, and the process is complete; The admin can close the temporary host client and reconnect to the permanent installation.
 * Maybe have a global limit of (25?) concurrent temporary hosts.
 * Maybe have a per-ip limit of (5?) concurrent temporary hosts.
-* Maybe require admins to add a "host download credit" or temporarily enable support host downloads (automatic shutoff after 5 or 10 minutes).
 
-There needs to be a simple internal version numbering scheme.  Int(32? 16?) value.  Starting at 1, +1 with each release. Master Server knows which is the minimum supported version.  Host sends its version as URL parameter or part of POST body.  Master Server can then reject with reason being that an update is required.
+There needs to be a simple internal version numbering scheme.  Int(32? 16?) value.  Starting at 1, +1 with each release. Master Server knows which is the minimum supported version.  Host sends its version as URL parameter or part of POST body.  Master Server can then reject before authentication if there was an auth-breaking change.  Otherwise, reject after authentication and provision a new exe for automatic update...
 
 Master Server needs extensive logging and monitoring capabilities:
 * Log connections from existing Hosts
