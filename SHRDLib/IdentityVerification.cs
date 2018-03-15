@@ -38,18 +38,18 @@ namespace SHRDLib
 				return sig;
 			}
 		}
-		
+
 		/// <summary>
 		/// Verifies that another party owns the private key they claim to own by verifying their signature.
 		/// </summary>
 		/// <param name="challenge">The original byte array that was sent as a challenge.</param>
-		/// <param name="publicKey">The public key the other party claims to have the private key for.  In XML/UTF8 (no byte order mark) format.</param>
+		/// <param name="publicKey">The public key the other party claims to have the private key for.  In XML format.</param>
 		/// <param name="signature">The signature we are attempting to verify.</param>
 		/// <returns></returns>
-		public static bool VerifySignature(byte[] challenge, byte[] publicKey, byte[] signature)
+		public static bool VerifySignature(byte[] challenge, string publicKey, byte[] signature)
 		{
 			RSACryptoServiceProvider key = new RSACryptoServiceProvider();
-			key.FromXmlString(ByteUtil.Utf8NoBOM.GetString(publicKey));
+			key.FromXmlString(publicKey);
 			return VerifySignature(challenge, key, signature);
 		}
 
@@ -67,7 +67,10 @@ namespace SHRDLib
 		}
 
 		private static object certLock = new object();
-		private static void EnsureClientCertificateExists()
+		/// <summary>
+		/// Loads and/or creates the self-signed client certificate for this program.
+		/// </summary>
+		public static void EnsureClientCertificateExists()
 		{
 			if (identify_verification_cert == null)
 			{
@@ -78,6 +81,19 @@ namespace SHRDLib
 						identify_verification_cert = GetIdentityVerificationCertificate();
 					}
 				}
+			}
+		}
+		/// <summary>
+		/// Returns the public key XML string.
+		/// </summary>
+		/// <returns></returns>
+		public static string GetPublicKeyXML()
+		{
+			lock (certLock)
+			{
+				EnsureClientCertificateExists();
+				RSACryptoServiceProvider csp = (RSACryptoServiceProvider)identify_verification_cert.PublicKey.Key;
+				return csp.ToXmlString(false);
 			}
 		}
 

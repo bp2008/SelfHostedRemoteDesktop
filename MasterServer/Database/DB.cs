@@ -72,6 +72,7 @@ namespace MasterServer.Database
 					//	{
 					//		Computer comp = new Computer();
 					//		comp.Name = "Computer " + a + "-" + b;
+					//		comp.PublicKey = "";
 					//		db.Insert(comp);
 					//		db.Insert(new ComputerGroupMembership(group.ID, comp.ID));
 					//	}
@@ -263,9 +264,14 @@ namespace MasterServer.Database
 		/// </summary>
 		/// <param name="computerName"></param>
 		/// <returns></returns>
-		public Computer GetComputer(string name)
+		public Computer GetComputerByName(string name)
 		{
 			return db.Query<Computer>("SELECT * FROM Computer WHERE Name = ?", name).FirstOrDefault();
+		}
+
+		public Computer GetComputerByPublicKey(string publicKey)
+		{
+			return db.Query<Computer>("SELECT * FROM Computer WHERE PublicKey = ?", publicKey).FirstOrDefault();
 		}
 		/// <summary>
 		/// Gets the computer with the specified ID, or null.
@@ -276,6 +282,17 @@ namespace MasterServer.Database
 		{
 			return db.Query<Computer>("SELECT * FROM Computer WHERE ID = ?", computerId).FirstOrDefault();
 		}
+		
+		/// <summary>
+		/// Updates the disconnect time of the computer with the specified ID (to the current time).
+		/// </summary>
+		/// <param name="computerName"></param>
+		/// <returns></returns>
+		public void UpdateComputerLastDisconnectTime(int computerID)
+		{
+			db.Query<Computer>("UPDATE Computer SET LastDisconnect = ? WHERE ID = ?", TimeUtil.GetTimeInMsSinceEpoch(), computerID);
+		}
+
 		/// <summary>
 		/// Adds a computer. Because computers are added automatically during the initial connection of a new Host, this method may change the provided name without notice if required to ensure uniqueness.
 		/// If unsuccessful, an exception is thrown.
@@ -291,13 +308,18 @@ namespace MasterServer.Database
 				{
 					if (attemptNumber > 1)
 						computer.Name = Util.MakeNameUnique(computer.Name, (uint)attemptNumber, 128);
-					Computer existing = GetComputer(computer.Name);
+					Computer existing = GetComputerByName(computer.Name);
 					return existing == null;
 				});
 				if (!gotUniqueName)
 					computer.Name = "SHRD-COMP-" + Guid.NewGuid() + "-" + originalName;
 				db.Insert(computer);
 			});
+		}
+
+		public void UpdateComputer(Computer computer)
+		{
+			db.Update(computer);
 		}
 		/// <summary>
 		/// Adds a user.  If unsuccessful (such as if there is a name collision), an exception is thrown.

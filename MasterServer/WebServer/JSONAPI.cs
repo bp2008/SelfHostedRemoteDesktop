@@ -50,7 +50,7 @@ namespace MasterServer
 					else
 					{
 						salt = Util.GenerateFakeUserSalt(userName);
-						Logger.Info("Fake salt \"" + salt + "\" created for user name \"" + userName + "\". Remote IP: " + p.RemoteIPAddress);
+						Logger.Info("Fake salt \"" + salt + "\" created for user name \"" + userName + "\". Remote IP: " + p.RemoteIPAddressStr);
 					}
 
 					p.writeSuccess(mimeType);
@@ -257,11 +257,19 @@ namespace MasterServer
 			public int ID;
 			public string Name;
 			public ResultGroupSummary[] Groups;
+			public long LastDisconnect;
+			public long Uptime = -1;
 			public ResultComputer(ComputerAndItsGroups c)
 			{
 				ID = c.Computer.ID;
 				Name = c.Computer.Name;
 				Groups = c.Groups.Select(g => new ResultGroupSummary(g)).ToArray();
+				LastDisconnect = c.Computer.LastDisconnect;
+				HostConnectHandle handle = HostConnect.GetOnlineComputer(ID);
+				if (handle != null)
+				{
+					Uptime = TimeUtil.GetTimeInMsSinceEpoch(handle.ConnectTime);
+				}
 			}
 		}
 		/// <summary>

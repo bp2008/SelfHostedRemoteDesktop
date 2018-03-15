@@ -12,7 +12,7 @@ namespace MasterServer.Database
 	public class Computer
 	{
 		/// <summary>
-		/// 
+		/// The computer ID. Auto-incremented primary key.
 		/// </summary>
 		[PrimaryKey, AutoIncrement]
 		public int ID { get; set; }
@@ -27,10 +27,11 @@ namespace MasterServer.Database
 		public string Name { get; set; }
 
 		/// <summary>
-		/// The computer's public key for identity verification.
+		/// The computer's public key in XML format.  This is used for identity verification and also to look up the computer record so each remote host doesn't actually need to know its own computer ID.
 		/// </summary>
+		[Unique]
 		[NotNull]
-		public byte[] PublicKey { get; set; }
+		public string PublicKey { get; set; }
 
 		/// <summary>
 		/// The time at which this record was created, in milliseconds since the Unix Epoch.
@@ -46,8 +47,13 @@ namespace MasterServer.Database
 		/// <summary>
 		/// Version number of the Host Client application, the last time it connected.
 		/// </summary>
-		[MaxLength(16)]
+		[MaxLength(24)]
 		public string AppVersion { get; set; }
+
+		/// <summary>
+		/// The time when this computer last went offline, in milliseconds since the Unix Epoch.
+		/// </summary>
+		public long LastDisconnect { get; set; }
 
 		/// <summary>
 		/// Returns an array of ComputerGroupMembership to which this computer belongs.

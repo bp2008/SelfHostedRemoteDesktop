@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using BPUtil;
@@ -11,12 +12,17 @@ using SHRDLib.NetCommand;
 
 namespace MasterServer
 {
+	/// <summary>
+	/// HostConnect class for SHRD's Master Server.
+	/// </summary>
 	public static class HostConnect
 	{
 		private static class ProtocolErrors
 		{
 			public const string AuthResponseLength = "Authentication response length must be greater than zero.";
 			public const string SignatureLength = "Authentication response specified 0-length signature.";
+			public const string PublicKeyLength = "Authentication response specified 0-length public key.";
+			public const string NameLength = "Authentication response specified 0-length computer name.";
 			public const string SignatureVerificationFailed = "Signature verification failed.";
 			public const string FailedToAddComputer = "Failed to add computer.";
 			public const string AuthResponseCommand = "Authentication response must begin with Command.ClientAuthentication.";
@@ -31,6 +37,8 @@ namespace MasterServer
 		/// <param name="p">The HttpProcessor instance.</param>
 		public static HostConnectResult HandleHostService(HttpProcessor p)
 		{
+			p.tcpClient.ReceiveTimeout = 30000;
+			p.tcpClient.SendTimeout = 30000;
 			Computer computer;
 			#region Authentication Protocol
 			{
@@ -41,7 +49,7 @@ namespace MasterServer
 				byte[] authChallenge = ByteUtil.GenerateRandomBytes(32);
 				p.tcpStream.Write(authChallenge, 0, authChallenge.Length);
 
-				// Auth 2) Receive authentication reply.
+				// Auth 2) Receive authentication reply.  This comes in as one big block so that data can be added to the end of the block in the future without breaking existing implementations.
 				Command receivedCommand = (Command)ByteUtil.ReadNBytes(p.tcpStream, 1)[0];
 				if (receivedCommand != Command.ClientAuthentication)
 					return new HostConnectResult(ProtocolErrors.AuthResponseCommand);
@@ -49,10 +57,9 @@ namespace MasterServer
 				ushort authResponseLength = ByteUtil.ReadUInt16(p.tcpStream);
 				if (authResponseLength == 0)
 					return new HostConnectResult(ProtocolErrors.AuthResponseLength);
-
-				// Auth 2.1) Host Service is attempting authentication.
-				// Read the signature.
 				byte[] authResponse = ByteUtil.ReadNBytes(p.tcpStream, authResponseLength);
+
+				// Auth 2.1) Read the signature.
 				int offset = 0;
 				ushort signatureLength = ByteUtil.ReadUInt16(authResponse, offset);
 				offset += 2;
@@ -61,81 +68,82 @@ namespace MasterServer
 				byte[] signature = ByteUtil.SubArray(authResponse, offset, signatureLength);
 				offset += signatureLength;
 
-				// Auth 2.2) Read the computer ID this Host Service claims to be.
-				int computerId = ByteUtil.ReadInt32(authResponse, offset);
-				offset += 4;
+				// Auth 2.2) Read the public key. This is used to identify and authenticate the computer.
+				ushort publicKeyLength = ByteUtil.ReadUInt16(authResponse, offset);
+				offset += 2;
+				if (publicKeyLength == 0)
+					return new HostConnectResult(ProtocolErrors.PublicKeyLength);
+				byte[] publicKeyBytes = ByteUtil.SubArray(authResponse, offset, publicKeyLength);
+				offset += publicKeyLength;
 
+				string publicKey = ByteUtil.Utf8NoBOM.GetString(publicKeyBytes);
 
-				if (computerId == -1)
+				// Auth 2.3) Read the computer name.
+				byte nameLength = authResponse[offset];
+				offset++;
+				if (nameLength == 0)
+					return new HostConnectResult(ProtocolErrors.NameLength);
+				string name = ByteUtil.ReadUtf8(authResponse, offset, nameLength);
+				offset += nameLength;
+
+				// Get computer from database
+				computer = ServiceWrapper.db.GetComputerByPublicKey(publicKey);
+				bool computerIsNew = computer == null;
+				if (computerIsNew)
 				{
-					// Auth 2.2.1) This Host Service has no computer ID, so we can't associate it with a previously existing computer.
-					// Because the Host Service sent a computer ID of -1, it will now be sending its computer name and public key.
-					// A record for this machine will be created in the database, in the Uncategorized group.
-					byte nameLength = authResponse[offset];
-					offset++;
-					string name = ByteUtil.ReadUtf8(authResponse, offset, nameLength);
-					offset += nameLength;
-
-					ushort publicKeyLength = ByteUtil.ReadUInt16(authResponse, offset);
-					offset += 2;
-					byte[] publicKey = ByteUtil.SubArray(authResponse, offset, publicKeyLength);
-					offset += publicKeyLength;
-
 					computer = new Computer();
-					computer.Name = name;
 					computer.PublicKey = publicKey;
+					computer.Name = name; // Only set the name if this is the first time we've seen the computer.  Future name changes will only happen in the SHRD administration interface.
 				}
-				else
-				{
-					// Auth 2.2.2) Load the specified computer ID from the database.
-					computer = ServiceWrapper.db.GetComputer(computerId);
-					if (computer == null) // Authentication failures all use the same response so an attacker can't tell if the computer ID was valid or not.
-						return new HostConnectResult(ProtocolErrors.SignatureVerificationFailed);
-				}
-				// Auth 2.3) Read the Host version and OS version strings.
+
+				// Auth 2.4) Read the Host version string.
 				byte hostVersionLength = authResponse[offset];
 				offset++;
 				computer.AppVersion = ByteUtil.ReadUtf8(authResponse, offset, hostVersionLength);
 				offset += hostVersionLength;
 
+				// Auth 2.5) Read the OS version string.
 				byte osVersionLength = authResponse[offset];
 				offset++;
 				computer.OS = ByteUtil.ReadUtf8(authResponse, offset, osVersionLength);
 				offset += osVersionLength;
 
-				// Auth 2.4) Signature Verification
+				// Signature Verification
 				if (!IdentityVerification.VerifySignature(authChallenge, computer.PublicKey, signature))
 					return new HostConnectResult(ProtocolErrors.SignatureVerificationFailed);
 
-				if (computerId == -1)
+				// Add or update this Computer in the database.
+				try
 				{
-					// Auth 2.5) Add this new Computer to the database.
-					try
-					{
+					if (computerIsNew)
 						ServiceWrapper.db.AddComputer(computer);
-					}
-					catch (ThreadAbortException) { throw; }
-					catch (Exception ex)
-					{
-						Logger.Debug(ex);
-						return new HostConnectResult(ProtocolErrors.FailedToAddComputer);
-					}
+					else
+						ServiceWrapper.db.UpdateComputer(computer);
+				}
+				catch (ThreadAbortException) { throw; }
+				catch (Exception ex)
+				{
+					Logger.Debug(ex);
+					return new HostConnectResult(ProtocolErrors.FailedToAddComputer);
 				}
 			}
 			#endregion
 
-			// A 75 second receive timeout allows for keepalive packets every 60 seconds to be received, and disconnections should always be detected within 75 seconds.
-			p.tcpClient.ReceiveTimeout = 75000;
-			p.tcpClient.SendTimeout = 10000;
+			// This is the Master Server, which is responsible for sending a KeepAlive packet after 120 seconds of sending inactivity.  The Host Service will do the same on a 60 second interval.
+			// A 75 second timeout means that disconnections should always be detected within 75 seconds of connection loss.  I don't know how long the underlying TCP stacks will wait, so this provides some measure of a guarantee that we don't wait excessively long.
+			p.tcpClient.ReceiveTimeout = 75000; // 60 seconds + 15 seconds for bad network conditions.
+			p.tcpClient.SendTimeout = 75000;
+
+			// TODO: Send KeepAlive packets every 120 seconds if no other packets have been sent.
 
 			// Create a HostConnectHandle for this computer to take over responsibility for the connection.
 			HostConnectHandle handle = new HostConnectHandle(computer.ID, p, p.tcpStream);
 			hosts.AddOrUpdate(computer.ID, handle, (id, existing) =>
-			{
-				// We have a handle for this host already, so just disconnect the old one.  It probably just hasn't timed out yet.
-				existing.Disconnect();
-				return handle;
-			});
+				{
+					// We have a handle for this host already, so just disconnect the old one.  It probably just hasn't timed out yet.
+					existing.Disconnect();
+					return handle;
+				});
 			try
 			{
 				handle.ListenLoop();
@@ -160,25 +168,19 @@ namespace MasterServer
 			return null;
 		}
 	}
-	public class HostConnectResult
-	{
-		public string Error = null;
-		/// <summary>
-		/// Creates a HostConnectResult indicating a normal exit.
-		/// </summary>
-		public HostConnectResult() { }
-		/// <summary>
-		/// Creates a HostConnectResult indicating that an error occurred.
-		/// </summary>
-		/// <param name="error">The error message.</param>
-		public HostConnectResult(string error) { this.Error = error; }
-	}
 	/// <summary>
 	/// Provides access to a remote Host Service.
 	/// </summary>
 	public class HostConnectHandle
 	{
+		/// <summary>
+		/// The computer ID of the computer represented by this HostConnectHandle.
+		/// </summary>
 		public readonly int ComputerID;
+		/// <summary>
+		/// The DateTime.UtcNow value at the moment host authentication passed and this HostConnectHandle was created.
+		/// </summary>
+		public readonly DateTime ConnectTime;
 		private Stream stream;
 		private HttpProcessor p;
 		/// <summary>
@@ -192,6 +194,7 @@ namespace MasterServer
 			this.ComputerID = computerId;
 			this.p = p;
 			this.stream = stream;
+			this.ConnectTime = DateTime.UtcNow;
 		}
 		/// <summary>
 		/// Listens for incoming traffic.  This should be the only thread which reads from the [stream].
@@ -223,14 +226,21 @@ namespace MasterServer
 			}
 			#endregion
 		}
-		public void RequestWebSocketProxy(string strProxyKey)
+		public void RequestWebSocketProxy(IPAddress sourceIp, string strProxyKey)
 		{
 			lock (writeLock)
 			{
-				byte[] proxyKey = ByteUtil.Utf8NoBOM.GetBytes(strProxyKey);
 				p.tcpStream.WriteByte((byte)Command.WebSocketConnectionRequest);
+
+				// Write proxy key as string.  This is all the Host Service actually needs to be able to initiate the proxied web socket connection.
+				byte[] proxyKey = ByteUtil.Utf8NoBOM.GetBytes(strProxyKey);
 				ByteUtil.WriteUInt16((ushort)proxyKey.Length, p.tcpStream);
 				p.tcpStream.Write(proxyKey, 0, proxyKey.Length);
+
+				// Write the IP address as a string.  A Host Service could find this useful for logging or filtering purposes.
+				byte[] ipData = ByteUtil.Utf8NoBOM.GetBytes(sourceIp.ToString());
+				ByteUtil.WriteUInt16((ushort)ipData.Length, p.tcpStream);
+				p.tcpStream.Write(ipData, 0, ipData.Length);
 			}
 		}
 		/// <summary>
@@ -238,9 +248,10 @@ namespace MasterServer
 		/// </summary>
 		public void Disconnect()
 		{
+			// TODO: Implement this as necessary.
 			try
 			{
-				// TODO: Implement this as necessary.
+				ServiceWrapper.db.UpdateComputerLastDisconnectTime(ComputerID);
 			}
 			catch (ThreadAbortException) { throw; }
 			catch (Exception ex)

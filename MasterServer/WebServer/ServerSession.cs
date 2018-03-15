@@ -90,6 +90,7 @@ namespace MasterServer
 		internal static ServerSession CreateUnauthenticated()
 		{
 			ServerSession session = new ServerSession();
+			// 16 characters, each character having 62 possible values, yields (62 ^ 16 =) 47672401706823533450263330816 possible session strings.
 			session.sid = Util.GetRandomAlphaNumericString(16);
 			session.TouchNow();
 			return session;

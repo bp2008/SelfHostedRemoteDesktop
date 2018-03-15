@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="BCrypt\BCrypt.cs" />
     <Compile Include="BCrypt\SaltParseException.cs" />
+    <Compile Include="HostConnectResult.cs" />
     <Compile Include="IdentityVerification.cs" />
     <Compile Include="NetCommand\Command.cs" />
     <Compile Include="NetCommand\DesktopInfo.cs" />

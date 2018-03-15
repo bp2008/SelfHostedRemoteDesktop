@@ -836,6 +836,85 @@ function documentIsHidden()
 
 	return document[prop];
 }
+function GetFuzzyTime(ms)
+{
+	/// <summary>Gets a fuzzy time string accurate within 1 year.</summary>
+	var years = Math.round(ms / 31536000000);
+	if (years > 0)
+		return years + " year" + (years == 1 ? "" : "s");
+	var months = Math.round(ms / 2628002880);
+	if (months > 0)
+		return months + " month" + (months == 1 ? "" : "s");
+	var weeks = Math.round(ms / 604800000);
+	if (weeks > 0)
+		return weeks + " week" + (weeks == 1 ? "" : "s");
+	return GetFuzzyTime_Days(ms);
+}
+function GetFuzzyTime_Days(ms)
+{
+	/// <summary>Gets a fuzzy time string accurate within 1 day.</summary>
+	var days = Math.round(ms / 86400000);
+	if (days > 0)
+		return days + " day" + (days == 1 ? "" : "s");
+	var hours = Math.round(ms / 3600000);
+	if (hours > 0)
+		return hours + " hour" + (hours == 1 ? "" : "s");
+	var minutes = Math.round(ms / 60000);
+	if (minutes > 0)
+		return minutes + " minute" + (minutes == 1 ? "" : "s");
+	return "less than 1 minute";
+}
+var use24HourTime = false;
+function GetTimeStr(date, includeMilliseconds)
+{
+	var ampm = "";
+	var hour = date.getHours();
+	if (!use24HourTime)
+	{
+		if (hour == 0)
+		{
+			hour = 12;
+			ampm = " AM";
+		}
+		else if (hour == 12)
+		{
+			ampm = " PM";
+		}
+		else if (hour > 12)
+		{
+			hour -= 12;
+			ampm = " PM";
+		}
+		else
+		{
+			ampm = " AM";
+		}
+	}
+	var ms = includeMilliseconds ? ("." + date.getMilliseconds()) : "";
+
+	var str = hour.toString().padLeft(2, '0') + ":" + date.getMinutes().toString().padLeft(2, '0') + ":" + date.getSeconds().toString().padLeft(2, '0') + ms + ampm;
+	return str;
+}
+function GetDateStr(date, includeMilliseconds)
+{
+	var str = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + " " + GetTimeStr(date, includeMilliseconds);
+	return str;
+}
+String.prototype.padLeft = function (len, c)
+{
+	var pads = len - this.length;
+	if (pads > 0)
+	{
+		var sb = [];
+		var pad = c || "&nbsp;";
+		for (var i = 0; i < pads; i++)
+			sb.push(pad);
+		sb.push(this);
+		return sb.join("");
+	}
+	return this;
+
+};
 $(function ()
 {
 	var visProp = getHiddenProp();

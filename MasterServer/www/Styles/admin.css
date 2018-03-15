@@ -104,3 +104,13 @@ input[type='button']
 {
 	text-decoration: none;
 }
+.compOnline
+{
+	font-weight: bold;
+	color: #66BB66;
+}
+.compOffline
+{
+	font-weight: bold;
+	color: #FF0000;
+}

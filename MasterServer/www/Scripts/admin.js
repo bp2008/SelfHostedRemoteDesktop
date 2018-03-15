@@ -217,7 +217,8 @@ function ComputersPageLoaded()
 		[
 			{ name: "ID", field: "ID" },
 			{ name: "Computer Name", field: "Name" },
-			{ name: "Groups", field: "Groups", editable: false, type: "custom", customRender: RenderGroupList }
+			{ name: "Groups", field: "Groups", editable: false, type: "custom", customRender: RenderGroupList },
+			{ name: "Status", field: "Uptime", editable: false, type: "custom", customRender: RenderUptime }
 		];
 	var tableOptions =
 		{
@@ -248,6 +249,27 @@ function ComputersPageLoaded()
 		for (var i = 0; i < computer.Groups.length; i++)
 			groupNames.push(computer.Groups[i].Name);
 		return groupNames.join(", ");
+	}
+	function RenderUptime(computer, editable, fieldName)
+	{
+		if (computer.Uptime > -1)
+		{
+			// Computer is online
+			var dateLastConnect = new Date(Date.now() - computer.Uptime);
+			return '<span class="compOnline">Online ' + GetFuzzyTime(computer.Uptime) + ' since ' + GetDateStr(dateLastConnect) + '</span>';
+		}
+		else if (computer.LastDisconnect === 0)
+		{
+			// Computer is offline
+			return '<span class="compOffline">Has Never Connected</span>';
+		}
+		else
+		{
+			// Computer is offline
+			var dateLastDisconnect = new Date(computer.LastDisconnect);
+			var timeSinceDisconnect = Date.now() - computer.LastDisconnect;
+			return '<span class="compOffline">Disconnected since ' + GetFuzzyTime(timeSinceDisconnect) + ' at ' + GetDateStr(dateLastDisconnect) + '</span>';
+		}
 	}
 }
 ///////////////////////////////////////////////////////////////

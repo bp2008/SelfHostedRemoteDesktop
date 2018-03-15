@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
@@ -25,6 +26,8 @@ namespace SelfHostedRemoteDesktop
 			System.Windows.Forms.Application.ThreadException += Application_ThreadException;
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
 			//byte[] buf = new byte[4];
 			//ByteUtil.WriteFloat(5, buf, 0);
 			//float f = ByteUtil.ReadFloat(buf, 0);

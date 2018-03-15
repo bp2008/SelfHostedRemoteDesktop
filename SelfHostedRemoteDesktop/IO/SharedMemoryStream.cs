@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.MemoryMappedFiles;
 using System.IO.Pipes;
 using System.Linq;
 using System.Net;
@@ -184,28 +183,61 @@ namespace SelfHostedRemoteDesktop
 		}
 
 		/// <summary>
-		/// Writes the specified amount of data to the outbound stream, not returning until all data has been placed in the underlying memory-mapped file. This method typically returns before the remote reader has finished reading the written data.
+		/// Writes the specified amount of data to the outbound stream.
 		/// </summary>
 		/// <param name="buffer">The buffer containing data to write.</param>
 		/// <param name="offset">The offset within the buffer at which to begin copying data.</param>
 		/// <param name="count">The number of bytes to write.  Must be less than or equal to the length of the buffer minus the offset.</param>
 		public override void Write(byte[] buffer, int offset, int count)
 		{
-			WaitUntilConnected();
-			if (count == 0)
-				return;
-			if (buffer == null)
-				throw new ArgumentNullException("buffer");
-			if (buffer.Length == 0)
-				throw new ArgumentException("buffer must have size larger than 0", "buffer");
-			if (count < 0 || count > buffer.Length - offset)
-				throw new ArgumentOutOfRangeException("count", "Value " + count + " is out of range");
-			if (offset < 0 || offset >= buffer.Length)
-				throw new ArgumentOutOfRangeException("offset", "Value " + offset + " is out of range");
-			if (count > buffer.Length - offset)
-				throw new ArgumentOutOfRangeException("count", count, "value exceeds the size of the buffer minus the offset");
+			try
+			{
+				WaitUntilConnected();
+				if (count == 0)
+					return;
+				if (buffer == null)
+					throw new ArgumentNullException("buffer");
+				if (buffer.Length == 0)
+					throw new ArgumentException("buffer must have size larger than 0", "buffer");
+				if (count < 0 || count > buffer.Length - offset)
+					throw new ArgumentOutOfRangeException("count", "Value " + count + " is out of range");
+				if (offset < 0 || offset >= buffer.Length)
+					throw new ArgumentOutOfRangeException("offset", "Value " + offset + " is out of range");
+				if (count > buffer.Length - offset)
+					throw new ArgumentOutOfRangeException("count", count, "value exceeds the size of the buffer minus the offset");
 
-			pipe.Write(buffer, 0, count);
+				pipe.Write(buffer, 0, count);
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
+		}
+		
+		/// <summary>
+		/// Writes the data to the outbound stream.
+		/// </summary>
+		/// <param name="buffer">The buffer containing data to write.</param>
+		public void Write(byte[] buffer)
+		{
+			try
+			{
+				WaitUntilConnected();
+				if (buffer == null)
+					throw new ArgumentNullException("buffer");
+				if (buffer.Length == 0)
+					return;
+
+				pipe.Write(buffer, 0, buffer.Length);
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
 		}
 
 		public override int ReadByte()

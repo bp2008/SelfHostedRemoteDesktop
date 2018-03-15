@@ -93,6 +93,9 @@
     <Compile Include="Config\Settings.cs" />
     <Compile Include="CursorHelper.cs" />
     <Compile Include="FragmentedImage.cs" />
+    <Compile Include="PerformanceData\OSInfo.cs" />
+    <Compile Include="PerformanceData\RegistryUtil.cs" />
+    <Compile Include="ServerConnect\HostConnect.cs" />
     <Compile Include="Native\Win32Helper.cs" />
     <Compile Include="NetCommand\StreamType.cs" />
     <Compile Include="NetCommand\DesktopInfo.cs" />

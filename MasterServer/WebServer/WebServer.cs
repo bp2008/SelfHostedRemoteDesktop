@@ -20,10 +20,7 @@ namespace MasterServer
 {
 	public class WebServer : HttpServer
 	{
-		private static bool enableCaching = false;
-		//private static ObjectPool<byte[]> decompressedScreenshotBufferPool = new ObjectPool<byte[]>(() => null, 2);
-		//private static NetworkStream webSocketProxyStream1 = null;
-		//private static NetworkStream webSocketProxyStream2 = null;
+		private static bool enableCaching = false; // TODO: Enable caching
 		public WebServer(int port, int httpsPort = -1, X509Certificate2 cert = null) : base(port, httpsPort, cert)
 		{
 		}
@@ -52,6 +49,10 @@ namespace MasterServer
 			{
 				p.writeRedirect("admin.html");
 			}
+			else if (p.requestedPage.StartsWith("WebSocketProxy/"))
+			{
+				WebSocketProxy.HandleConnection(p);
+			}
 			//else if (p.requestedPage == "windowskeycodes")
 			//{
 			//	p.writeSuccess();
@@ -62,59 +63,6 @@ namespace MasterServer
 			//		p.outputStream.Write("<tr><td>" + keyCode + "</td><td>" + (System.Windows.Forms.Keys)keyCode + "</td></tr>");
 			//	}
 			//	p.outputStream.Write("</tbody></table>");
-			//}
-			else if (p.requestedPage.StartsWith("WebSocketProxy/"))
-			{
-				WebSocketProxy.HandleWebSocketProxyRequest(p);
-			}
-			//else if (p.requestedPage == "WebSocketProxy")
-			//{
-			//	//p.writeWebSocketProxy();
-			//	p.responseWritten = true;
-			//	bool isProxiedWebSocketServer = false;
-			//	NetworkStream otherStream;
-			//	if (webSocketProxyStream1 == null)
-			//	{
-			//		isProxiedWebSocketServer = true;
-			//		webSocketProxyStream1 = p.tcpClient.GetStream();
-			//		while (webSocketProxyStream2 == null)
-			//			Thread.Sleep(1);
-			//		otherStream = webSocketProxyStream2;
-			//	}
-			//	else if (webSocketProxyStream2 == null)
-			//	{
-			//		webSocketProxyStream2 = p.tcpClient.GetStream();
-			//		while (webSocketProxyStream1 == null)
-			//			Thread.Sleep(1);
-			//		otherStream = webSocketProxyStream1;
-			//		StringBuilder sb = new StringBuilder();
-			//		sb.Append(p.http_method + " /SHRD " + p.http_protocol_versionstring + "\r\n");
-			//		foreach (KeyValuePair<string, string> kvp in p.httpHeadersRaw)
-			//		{
-			//			if (kvp.Key.ToLower() == "host")
-			//				sb.Append(kvp.Key + ": 192.168.0.120:8089\r\n");
-			//			else
-			//				sb.Append(kvp.Key + ": " + kvp.Value + "\r\n");
-			//		}
-			//		sb.Append("\r\n");
-			//		byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
-			//		otherStream.Write(buf, 0, buf.Length);
-			//		otherStream.Flush();
-			//	}
-			//	else
-			//		return;
-
-			//	byte[] buffer = new byte[64 * 1024];
-			//	int read;
-			//	do
-			//	{
-			//		read = otherStream.Read(buffer, 0, buffer.Length);
-			//		if (read > 0)
-			//			p.rawOutputStream.Write(buffer, 0, read);
-			//		else
-			//			p.rawOutputStream.Flush();
-			//	}
-			//	while (read > 0);
 			//}
 			else
 			{
@@ -139,7 +87,7 @@ namespace MasterServer
 					string html = File.ReadAllText(fi.FullName);
 					try
 					{
-						html = html.Replace("%REMOTEIP%", p.RemoteIPAddress);
+						html = html.Replace("%REMOTEIP%", p.RemoteIPAddressStr);
 						//html = html.Replace("%SYSTEM_NAME%", ServiceWrapper.settings.systemName);
 						html = html.Replace("%APP_VERSION%", AppVersion.VersionNumber);
 					}
@@ -190,20 +138,6 @@ namespace MasterServer
 			}
 			return additionalHeaders;
 		}
-
-		//private byte[] GetByteArrayOfSize(int requiredBufferSize)
-		//{
-		//	byte[] buf;
-		//	int attempts = 0;
-		//	do
-		//	{
-		//		buf = decompressedScreenshotBufferPool.GetObject(() => new byte[requiredBufferSize]);
-		//	}
-		//	while (buf.Length != requiredBufferSize && ++attempts < 5);
-		//	if (buf.Length != requiredBufferSize)
-		//		buf = new byte[requiredBufferSize];
-		//	return buf;
-		//}
 
 		public override void handlePOSTRequest(HttpProcessor p, StreamReader inputData)
 		{

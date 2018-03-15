@@ -78,7 +78,7 @@ namespace MasterServer.Admin
 				string html = File.ReadAllText(fi.FullName);
 				try
 				{
-					html = html.Replace("%REMOTEIP%", p.RemoteIPAddress);
+					html = html.Replace("%REMOTEIP%", p.RemoteIPAddressStr);
 					//html = html.Replace("%SYSTEM_NAME%", ServiceWrapper.settings.systemName);
 					html = html.Replace("%APP_VERSION%", AppVersion.VersionNumber);
 				}
