@@ -6,7 +6,7 @@ Self Hosted Remote Desktop (**SHRD** for short) is an open-source remote desktop
 ## Comparison with other remote-desktop tools and services
 
 |                               | SHRD     | TeamViewer | VNC          |
-| ----------------------------- |:--------:|:----------:|:------------:|
+| ----------------------------- | -------- | ---------- | ------------ |
 | Free version available        | ✅ | ✅ | ✅ |
 | Free for commercial use       | ✅ | ❌ | ✅ |
 | Open Source                   | ✅ | ❌ | ✅ |
@@ -41,3 +41,7 @@ The `Master Server` provides an HTML5 web client for remote access of connected 
 This is a bit silly, but I built a diagram illustrating the basic architecture of Self Hosted Remote Desktop.  Essentially, SHRD's `Master Server` is intended to fill the roles of a cloud remote desktop service provider, on a much smaller scale.
 
 ![System Diagram](https://i.imgur.com/anlKuO0.png)
+
+## Building from source
+
+This solution is only tested with Visual Studio 2017 Community Edition.  To build, you will also need my general-purpose utility project, [BPUtil](https://github.com/bp2008/BPUtil).  Full compatibility with said utility project is not guaranteed, since I often don't check in its changes in a timely manner.
