@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using BPUtil;
 using SelfHostedRemoteDesktop;
 using SelfHostedRemoteDesktop.Native;
-using SelfHostedRemoteDesktop.NetCommand;
+using SHRDLib.NetCommand;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;

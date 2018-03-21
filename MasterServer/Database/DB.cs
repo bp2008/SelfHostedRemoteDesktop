@@ -282,7 +282,7 @@ namespace MasterServer.Database
 		{
 			return db.Query<Computer>("SELECT * FROM Computer WHERE ID = ?", computerId).FirstOrDefault();
 		}
-		
+
 		/// <summary>
 		/// Updates the disconnect time of the computer with the specified ID (to the current time).
 		/// </summary>
@@ -330,6 +330,51 @@ namespace MasterServer.Database
 		{
 			db.Insert(user);
 		}
+		#region Security Keys
+		/// <summary>
+		/// Generates a new security key, adds it to the database, then returns the key.  Returns null in the event of failure.
+		/// </summary>
+		/// <param name="permission"></param>
+		/// <returns></returns>
+		public SecurityKey AddNewSecurityKey(SecurityKeyPermission permission)
+		{
+			Exception ex;
+			// We'll try this a few times if necessary since there is a unique constraint on the security key string, even though the chance of a collision is astronomically low assuming the random number generator is written properly.
+			int attempts = 0;
+			do
+			{
+				SecurityKey secKey = SecurityKey.GenerateNew(permission);
+				try
+				{
+					db.Insert(secKey);
+					return secKey;
+				}
+				catch (ThreadAbortException) { throw; }
+				catch (Exception e) { ex = e; }
+			}
+			while (++attempts <= 3);
+			Logger.Debug(ex, "Unable to add unique security key to database after " + attempts + " attempts");
+			return null;
+		}
+		/// <summary>
+		/// Returns the security key with the specified KeyString, or null.
+		/// </summary>
+		/// <param name="KeyString">The KeyString of the security key to find in the database.</param>
+		/// <returns></returns>
+		public SecurityKey GetSecurityKey(string KeyString)
+		{
+			return db.Query<SecurityKey>("SELECT * FROM SecurityKey WHERE KeyString = ?" + KeyString).FirstOrDefault();
+		}
+		/// <summary>
+		/// Updates the specified security key in the database.
+		/// </summary>
+		/// <param name="secKey">The security key to update.</param>
+		/// <returns></returns>
+		public void UpdateSecurityKey(SecurityKey secKey)
+		{
+			db.Update(secKey);
+		}
+		#endregion
 		#region Abstract Settings
 		public AbstractSetting[] GetGroupSettings(int GroupID)
 		{

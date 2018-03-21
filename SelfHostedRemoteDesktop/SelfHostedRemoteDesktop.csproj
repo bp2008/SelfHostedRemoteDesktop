@@ -97,11 +97,6 @@
     <Compile Include="PerformanceData\RegistryUtil.cs" />
     <Compile Include="ServerConnect\HostConnect.cs" />
     <Compile Include="Native\Win32Helper.cs" />
-    <Compile Include="NetCommand\StreamType.cs" />
-    <Compile Include="NetCommand\DesktopInfo.cs" />
-    <Compile Include="NetCommand\InputType.cs" />
-    <Compile Include="NetCommand\Command.cs" />
-    <Compile Include="NetCommand\ImgFlags.cs" />
     <Compile Include="IO\SharedMemoryStream.cs" />
     <Compile Include="Native\NativeMethods.cs" />
     <Compile Include="Screenshot.cs" />

@@ -53,6 +53,7 @@
     <Compile Include="Database\AbstractSetting.cs" />
     <Compile Include="Database\Computer.cs" />
     <Compile Include="Database\DB.cs" />
+    <Compile Include="Database\SecurityKey.cs" />
     <Compile Include="Database\UserGroup.cs" />
     <Compile Include="Database\ComputerGroupMembership.cs" />
     <Compile Include="Database\UserGroupMembership.cs" />

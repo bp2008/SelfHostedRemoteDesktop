@@ -1,4 +1,4 @@
-﻿using SelfHostedRemoteDesktop.NetCommand;
+﻿using SHRDLib.NetCommand;
 
 namespace SelfHostedRemoteDesktop.Streamer
 {

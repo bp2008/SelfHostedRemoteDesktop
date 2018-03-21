@@ -74,7 +74,7 @@ namespace SelfHostedRemoteDesktop.Streamer
 		/// Captures a screenshot. Remember, you should always use this class from the same thread.
 		/// </summary>
 		/// <returns></returns>
-		public FragmentedImage Capture(SelfHostedRemoteDesktop.NetCommand.DesktopScreen screen)
+		public FragmentedImage Capture(SHRDLib.NetCommand.DesktopScreen screen)
 		{
 			if (screen == null)
 				throw new NullReferenceException("screen cannot be null");

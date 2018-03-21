@@ -215,7 +215,7 @@ namespace SelfHostedRemoteDesktop
 				throw;
 			}
 		}
-		
+
 		/// <summary>
 		/// Writes the data to the outbound stream.
 		/// </summary>
@@ -388,108 +388,51 @@ namespace SelfHostedRemoteDesktop
 		}
 		public short ReadInt16()
 		{
-			try
-			{
-				WaitUntilConnected();
-				byte[] buf = new byte[2];
-				pipe.Read(buf, 0, buf.Length);
-				return IPAddress.NetworkToHostOrder(BitConverter.ToInt16(buf, 0));
-			}
-			catch (IOException ex)
-			{
-				if (ex.Message == "Pipe is broken.")
-					throw new StreamDisconnectedException();
-				throw;
-			}
+			return BitConverter.ToInt16(ReadNBytesFromNetworkOrder(2), 0);
 		}
 		public ushort ReadUInt16()
 		{
-			try
-			{
-				WaitUntilConnected();
-				byte[] buf = new byte[2];
-				pipe.Read(buf, 0, buf.Length);
-				return (ushort)IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(buf, 0));
-			}
-			catch (IOException ex)
-			{
-				if (ex.Message == "Pipe is broken.")
-					throw new StreamDisconnectedException();
-				throw;
-			}
+			return BitConverter.ToUInt16(ReadNBytesFromNetworkOrder(2), 0);
 		}
 		public int ReadInt32()
 		{
-			try
-			{
-				WaitUntilConnected();
-				byte[] buf = new byte[4];
-				pipe.Read(buf, 0, buf.Length);
-				return IPAddress.NetworkToHostOrder(BitConverter.ToInt32(buf, 0));
-			}
-			catch (IOException ex)
-			{
-				if (ex.Message == "Pipe is broken.")
-					throw new StreamDisconnectedException();
-				throw;
-			}
+			return BitConverter.ToInt32(ReadNBytesFromNetworkOrder(4), 0);
 		}
 		public uint ReadUInt32()
 		{
-			try
-			{
-				WaitUntilConnected();
-				byte[] buf = new byte[4];
-				pipe.Read(buf, 0, buf.Length);
-				return (uint)IPAddress.NetworkToHostOrder((int)BitConverter.ToUInt32(buf, 0));
-			}
-			catch (IOException ex)
-			{
-				if (ex.Message == "Pipe is broken.")
-					throw new StreamDisconnectedException();
-				throw;
-			}
+			return BitConverter.ToUInt32(ReadNBytesFromNetworkOrder(4), 0);
 		}
 		public long ReadInt64()
 		{
-			try
-			{
-				WaitUntilConnected();
-				byte[] buf = new byte[8];
-				pipe.Read(buf, 0, buf.Length);
-				return IPAddress.NetworkToHostOrder(BitConverter.ToInt64(buf, 0));
-			}
-			catch (IOException ex)
-			{
-				if (ex.Message == "Pipe is broken.")
-					throw new StreamDisconnectedException();
-				throw;
-			}
+			return BitConverter.ToInt64(ReadNBytesFromNetworkOrder(8), 0);
 		}
 		public ulong ReadUInt64()
 		{
-			try
-			{
-				WaitUntilConnected();
-				byte[] buf = new byte[8];
-				pipe.Read(buf, 0, buf.Length);
-				return (ulong)IPAddress.NetworkToHostOrder((long)BitConverter.ToUInt64(buf, 0));
-			}
-			catch (IOException ex)
-			{
-				if (ex.Message == "Pipe is broken.")
-					throw new StreamDisconnectedException();
-				throw;
-			}
+			return BitConverter.ToUInt64(ReadNBytesFromNetworkOrder(8), 0);
 		}
 		public float ReadFloat()
 		{
+			return BitConverter.ToSingle(ReadNBytesFromNetworkOrder(4), 0);
+		}
+		public double ReadDouble()
+		{
+			return BitConverter.ToDouble(ReadNBytesFromNetworkOrder(8), 0);
+		}
+		public string ReadUtf8(int lengthBytes)
+		{
+			return ByteUtil.ReadUtf8(ReadNBytes(lengthBytes));
+		}
+		/// <summary>
+		/// Reads a specific number of bytes from the stream, returning a byte array.  Ordinary stream.Read operations are not guaranteed to read all the requested bytes.
+		/// </summary>
+		/// <param name="length">The number of bytes to read.</param>
+		/// <returns></returns>
+		public byte[] ReadNBytes(int length)
+		{
 			try
 			{
 				WaitUntilConnected();
-				byte[] buf = new byte[4];
-				pipe.Read(buf, 0, buf.Length);
-				return BitConverter.ToSingle(ByteUtil.NetworkToHostOrder(buf), 0);
+				return ByteUtil.ReadNBytes(pipe, length);
 			}
 			catch (IOException ex)
 			{
@@ -498,14 +441,17 @@ namespace SelfHostedRemoteDesktop
 				throw;
 			}
 		}
-		public double ReadDouble()
+		/// <summary>
+		/// Reads a specific number of bytes from the stream and performs NetworkToHostOrder on the resulting byte array before returning it.
+		/// </summary>
+		/// <param name="length">The number of bytes to read.</param>
+		/// <returns></returns>
+		public byte[] ReadNBytesFromNetworkOrder(int length)
 		{
 			try
 			{
 				WaitUntilConnected();
-				byte[] buf = new byte[8];
-				pipe.Read(buf, 0, buf.Length);
-				return BitConverter.ToDouble(ByteUtil.NetworkToHostOrder(buf), 0);
+				return ByteUtil.ReadNBytesFromNetworkOrder(pipe, length);
 			}
 			catch (IOException ex)
 			{

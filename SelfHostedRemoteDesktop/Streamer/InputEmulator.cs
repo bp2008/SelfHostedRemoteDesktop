@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BPUtil;
 using SelfHostedRemoteDesktop;
-using SelfHostedRemoteDesktop.NetCommand;
+using SHRDLib.NetCommand;
 using WindowsInput;
 using WindowsInput.Native;
-using MouseButton = SelfHostedRemoteDesktop.NetCommand.MouseButton;
+using MouseButton = SHRDLib.NetCommand.MouseButton;
 
 namespace SelfHostedRemoteDesktop.Streamer
 {

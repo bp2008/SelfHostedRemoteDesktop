@@ -8,7 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using BPUtil;
 using SelfHostedRemoteDesktop;
-using SelfHostedRemoteDesktop.NetCommand;
+using SHRDLib.NetCommand;
 using turbojpegCLI;
 
 namespace SelfHostedRemoteDesktop.Streamer

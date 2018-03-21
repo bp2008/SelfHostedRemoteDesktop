@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BPUtil;
-using SelfHostedRemoteDesktop.NetCommand;
 using SHRDLib;
+using SHRDLib.NetCommand;
 using turbojpegCLI;
 
 namespace SelfHostedRemoteDesktop

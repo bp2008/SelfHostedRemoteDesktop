@@ -9,8 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BPUtil;
-using SelfHostedRemoteDesktop.NetCommand;
 using SHRDLib;
+using SHRDLib.NetCommand;
 using SHRDLib.Utilities;
 
 namespace SelfHostedRemoteDesktop

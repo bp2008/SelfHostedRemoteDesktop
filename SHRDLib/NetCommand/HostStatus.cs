@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,10 +23,13 @@ namespace SHRDLib.NetCommand
 		public byte MEM = 255;
 
 		public HostStatus() { }
-		public HostStatus(IDataStream s, int length)
+		public HostStatus(Stream s, int length)
 		{
-			CPU = (byte)s.ReadByte();
-			MEM = (byte)s.ReadByte();
+			using (MemoryDataStream mds = new MemoryDataStream(s, length))
+			{
+				CPU = (byte)s.ReadByte();
+				MEM = (byte)s.ReadByte();
+			}
 		}
 	}
 }

@@ -21,6 +21,7 @@ namespace MasterServer
 		{
 			public const string AuthResponseLength = "Authentication response length must be greater than zero.";
 			public const string SignatureLength = "Authentication response specified 0-length signature.";
+			public const string SecurityKeyLength = "Authentication response specified 0-length security key.";
 			public const string PublicKeyLength = "Authentication response specified 0-length public key.";
 			public const string NameLength = "Authentication response specified 0-length computer name.";
 			public const string SignatureVerificationFailed = "Signature verification failed.";
@@ -57,74 +58,73 @@ namespace MasterServer
 				ushort authResponseLength = ByteUtil.ReadUInt16(p.tcpStream);
 				if (authResponseLength == 0)
 					return new HostConnectResult(ProtocolErrors.AuthResponseLength);
-				byte[] authResponse = ByteUtil.ReadNBytes(p.tcpStream, authResponseLength);
-
-				// Auth 2.1) Read the signature.
-				int offset = 0;
-				ushort signatureLength = ByteUtil.ReadUInt16(authResponse, offset);
-				offset += 2;
-				if (signatureLength == 0)
-					return new HostConnectResult(ProtocolErrors.SignatureLength);
-				byte[] signature = ByteUtil.SubArray(authResponse, offset, signatureLength);
-				offset += signatureLength;
-
-				// Auth 2.2) Read the public key. This is used to identify and authenticate the computer.
-				ushort publicKeyLength = ByteUtil.ReadUInt16(authResponse, offset);
-				offset += 2;
-				if (publicKeyLength == 0)
-					return new HostConnectResult(ProtocolErrors.PublicKeyLength);
-				byte[] publicKeyBytes = ByteUtil.SubArray(authResponse, offset, publicKeyLength);
-				offset += publicKeyLength;
-
-				string publicKey = ByteUtil.Utf8NoBOM.GetString(publicKeyBytes);
-
-				// Auth 2.3) Read the computer name.
-				byte nameLength = authResponse[offset];
-				offset++;
-				if (nameLength == 0)
-					return new HostConnectResult(ProtocolErrors.NameLength);
-				string name = ByteUtil.ReadUtf8(authResponse, offset, nameLength);
-				offset += nameLength;
-
-				// Get computer from database
-				computer = ServiceWrapper.db.GetComputerByPublicKey(publicKey);
-				bool computerIsNew = computer == null;
-				if (computerIsNew)
+				using (MemoryDataStream authResponse = new MemoryDataStream(p.tcpStream, authResponseLength))
 				{
-					computer = new Computer();
-					computer.PublicKey = publicKey;
-					computer.Name = name; // Only set the name if this is the first time we've seen the computer.  Future name changes will only happen in the SHRD administration interface.
-				}
+					// Auth 2.1) Read authentication type.
+					HostAuthenticationType authType = (HostAuthenticationType)authResponse.ReadByte();
 
-				// Auth 2.4) Read the Host version string.
-				byte hostVersionLength = authResponse[offset];
-				offset++;
-				computer.AppVersion = ByteUtil.ReadUtf8(authResponse, offset, hostVersionLength);
-				offset += hostVersionLength;
+					// Auth 2.2) Read the security key that was created when the host download was provisioned.
+					int securityKeyLength = authResponse.ReadByte();
+					if (securityKeyLength == 0)
+						return new HostConnectResult(ProtocolErrors.SecurityKeyLength);
+					string securityKey = authResponse.ReadUtf8(securityKeyLength);
 
-				// Auth 2.5) Read the OS version string.
-				byte osVersionLength = authResponse[offset];
-				offset++;
-				computer.OS = ByteUtil.ReadUtf8(authResponse, offset, osVersionLength);
-				offset += osVersionLength;
 
-				// Signature Verification
-				if (!IdentityVerification.VerifySignature(authChallenge, computer.PublicKey, signature))
-					return new HostConnectResult(ProtocolErrors.SignatureVerificationFailed);
+					// Auth 2.3) Read the signature.
+					ushort signatureLength = authResponse.ReadUInt16();
+					if (signatureLength == 0 && authType == HostAuthenticationType.PermanentHost)
+						return new HostConnectResult(ProtocolErrors.SignatureLength);
+					byte[] signature = authResponse.ReadNBytes(signatureLength);
 
-				// Add or update this Computer in the database.
-				try
-				{
+					// Auth 2.4) Read the public key. This is used to identify and authenticate the computer.
+					ushort publicKeyLength = authResponse.ReadUInt16();
+					if (publicKeyLength == 0 && authType == HostAuthenticationType.PermanentHost)
+						return new HostConnectResult(ProtocolErrors.PublicKeyLength);
+					string publicKey = authResponse.ReadUtf8(publicKeyLength);
+
+					// Auth 2.5) Read the computer name.
+					int nameLength = authResponse.ReadByte();
+					if (nameLength == 0)
+						return new HostConnectResult(ProtocolErrors.NameLength);
+					string name = authResponse.ReadUtf8(nameLength);
+
+					// Get computer from database
+					computer = ServiceWrapper.db.GetComputerByPublicKey(publicKey);
+					bool computerIsNew = computer == null;
 					if (computerIsNew)
-						ServiceWrapper.db.AddComputer(computer);
-					else
-						ServiceWrapper.db.UpdateComputer(computer);
-				}
-				catch (ThreadAbortException) { throw; }
-				catch (Exception ex)
-				{
-					Logger.Debug(ex);
-					return new HostConnectResult(ProtocolErrors.FailedToAddComputer);
+					{
+						computer = new Computer();
+						computer.PublicKey = publicKey;
+						computer.Name = name; // Only set the name if this is the first time we've seen the computer.  Future name changes will only happen in the SHRD administration interface.
+					}
+
+					// Auth 2.6) Read the Host version string.
+					int hostVersionLength = authResponse.ReadByte();
+					computer.AppVersion = authResponse.ReadUtf8(hostVersionLength);
+
+					// Auth 2.7) Read the OS version string.
+					int osVersionLength = authResponse.ReadByte();
+					computer.OS = authResponse.ReadUtf8(osVersionLength);
+
+					// Signature Verification
+					if (authType == HostAuthenticationType.PermanentHost &&
+						!IdentityVerification.VerifySignature(authChallenge, computer.PublicKey, signature))
+						return new HostConnectResult(ProtocolErrors.SignatureVerificationFailed);
+
+					// Add or update this Computer in the database.
+					try
+					{
+						if (computerIsNew)
+							ServiceWrapper.db.AddComputer(computer);
+						else
+							ServiceWrapper.db.UpdateComputer(computer);
+					}
+					catch (ThreadAbortException) { throw; }
+					catch (Exception ex)
+					{
+						Logger.Debug(ex);
+						return new HostConnectResult(ProtocolErrors.FailedToAddComputer);
+					}
 				}
 			}
 			#endregion
@@ -210,7 +210,7 @@ namespace MasterServer
 					case Command.HostStatus:
 						{
 							int hostStatusLength = ByteUtil.ReadInt32(stream);
-							HostStatus hostStatus = new HostStatus(ByteUtil.ReadNBytesToDataStream(stream, hostStatusLength), hostStatusLength);
+							HostStatus hostStatus = new HostStatus(stream, hostStatusLength);
 
 							break;
 						}
