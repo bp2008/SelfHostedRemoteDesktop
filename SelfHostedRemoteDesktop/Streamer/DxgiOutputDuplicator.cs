@@ -6,8 +6,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using BPUtil;
-using SelfHostedRemoteDesktop;
-using SelfHostedRemoteDesktop.Native;
 using SHRDLib.NetCommand;
 using SharpDX;
 using SharpDX.Direct3D11;

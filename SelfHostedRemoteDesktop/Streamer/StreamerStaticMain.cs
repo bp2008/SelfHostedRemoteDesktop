@@ -35,7 +35,7 @@ namespace SelfHostedRemoteDesktop.Streamer
 		public static void Run(string[] args)
 		{
 			string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-			Globals.InitializeProgram(exePath, "Self Hosted Remote Desktop");
+			Globals.InitializeProgram(exePath, "Self Hosted Remote Desktop", true);
 			PrivateAccessor.SetStaticFieldValue(typeof(Globals), "errorFilePath", Globals.WritableDirectoryBase + "SHRD_Streamer_Log.txt");
 
 			Logger.logType = LoggingMode.File;

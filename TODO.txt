@@ -176,6 +176,10 @@ Master Server needs to be able to query the Service for things:
 
 The client needs to be able to open a web socket connection to the Master Server, providing arguments as part of the web socket URL (including authentication).  Master Server verifies that the user has access to the requested machine, then arranges a proxied Web Socket connection to the remote machine's SHRD Service.  The Service opens a connection to the Master Server to accomodate this, then feeds that connection into its own Web Socket Server.
 
+* The Master Server needs to officially support proxy servers and get the real remote IP address from a header ONLY IF the socket connection's remote IP address matches a configured proxy server.
+* User login logging, both successes and failures, with remote IP address.
+	* Deny login attempts if the remote IP address has been used for N failed logins in T time. (N = 5, T = 60sec?)
+
 ---------------------------------
 Done:
 ---------------------------------

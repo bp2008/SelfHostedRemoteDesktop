@@ -17,7 +17,7 @@ namespace SelfHostedRemoteDesktop
 		public static void Run(string[] args)
 		{
 			string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-			Globals.InitializeProgram(exePath, "Self Hosted Remote Desktop");
+			Globals.InitializeProgram(exePath, "Self Hosted Remote Desktop", true);
 			PrivateAccessor.SetStaticFieldValue(typeof(Globals), "errorFilePath", Globals.WritableDirectoryBase + "SHRD_Log.txt");
 
 			FileInfo fiExe = new FileInfo(exePath);
@@ -47,6 +47,7 @@ namespace SelfHostedRemoteDesktop
 						Console.WriteLine("Type \"exit\" to close");
 					while (Console.ReadLine().ToLower() != "exit");
 					ServiceWrapper.Stop();
+					return;
 				}
 				else
 					Logger.logType = LoggingMode.File;

@@ -34,7 +34,7 @@ namespace SHRDLib
 			{
 				EnsureClientCertificateExists();
 				RSACryptoServiceProvider csp = (RSACryptoServiceProvider)identify_verification_cert.PrivateKey;
-				byte[] sig = csp.SignHash(challenge, CryptoConfig.MapNameToOID("SHA1"));
+				byte[] sig = csp.SignHash(sha1, CryptoConfig.MapNameToOID("SHA1"));
 				return sig;
 			}
 		}

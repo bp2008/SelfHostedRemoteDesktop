@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Admin\AdminPage.cs" />
     <Compile Include="Config\Settings.cs" />
     <Compile Include="Database\AbstractSetting.cs" />
     <Compile Include="Database\Computer.cs" />
@@ -72,14 +71,54 @@
     <Compile Include="WebServer\ServerSession.cs" />
     <Compile Include="ServiceWrapper.cs" />
     <Compile Include="WebServer\SessionManager.cs" />
+    <Compile Include="WebServer\WebpackProxy.cs" />
     <Compile Include="WebServer\WebServer.cs" />
     <Compile Include="WebServer\WebSocketProxy.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="www\vues\client\computers\ComputerGroup.vue" />
+    <None Include="www\vues\client\computers\Computer.vue" />
+    <None Include="www\vues\common\ScaleLoader.vue" />
+    <None Include=".babelrc" />
     <None Include="App.config" />
-    <Content Include="www\Scripts\jquery-3.1.1.min.map">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="webpack.config.js" />
+    <Content Include="www\404.html" />
+    <Content Include="www\api\api.js" />
+    <Content Include="www\Default.html" />
+    <Content Include="www\images\sprite\add.svg" />
+    <Content Include="www\images\sprite\add_computer.svg" />
+    <Content Include="www\images\sprite\add_group.svg" />
+    <Content Include="www\images\sprite\add_user.svg" />
+    <Content Include="www\images\sprite\chart.svg" />
+    <Content Include="www\images\sprite\computer.svg" />
+    <Content Include="www\images\sprite\delete.svg" />
+    <Content Include="www\images\sprite\fullscreen.svg" />
+    <Content Include="www\images\sprite\fullscreen_exit.svg" />
+    <Content Include="www\images\sprite\group.svg" />
+    <Content Include="www\images\sprite\network.svg" />
+    <Content Include="www\images\sprite\remove.svg" />
+    <Content Include="www\images\sprite\remove_computer.svg" />
+    <Content Include="www\images\sprite\settings.svg" />
+    <Content Include="www\images\sprite\settings_network.svg" />
+    <Content Include="www\images\sprite\user.svg" />
+    <Content Include="www\main.js" />
+    <Content Include="www\router\index.js" />
+    <None Include="package.json" />
+    <None Include="www\jsconfig.json" />
+    <None Include="www\vues\admin\AdminUsers.vue" />
+    <None Include="www\vues\admin\AdminComputers.vue" />
+    <None Include="www\vues\admin\Template.vue" />
+    <None Include="www\vues\admin\AdminMenu.vue" />
+    <None Include="www\vues\admin\AdminLayout.vue" />
+    <None Include="www\vues\admin\AdminStatus.vue" />
+    <None Include="www\vues\client\ClientMenu.vue" />
+    <None Include="www\vues\common\Footer.vue" />
+    <None Include="www\vues\public\PublicHome.vue" />
+    <None Include="www\vues\public\PublicLayout.vue" />
+    <None Include="www\vues\Login.vue" />
+    <None Include="www\vues\client\ClientLayout.vue" />
+    <None Include="www\vues\client\ClientHome.vue" />
+    <None Include="www\vues\App.vue" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BPUtil\BPUtil\BPUtil.csproj">
@@ -92,93 +131,68 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="www\admin\admin.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\admin\computers.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\admin\login.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\admin\status.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\admin\users.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="www\Client.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Images\sprite.svg">
+    <Content Include="www\images\sprite.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\admin.js">
+    <Content Include="www\scripts\bcrypt.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\bcrypt.min.js">
+    <Content Include="www\scripts\Client.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\Client.js">
+    <Content Include="www\scripts\jquery.mousewheel.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\jquery-3.1.1.js">
+    <Content Include="www\scripts\KeycodeTranslator.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\jquery-3.1.1.min.js">
+    <Content Include="www\scripts\Dialog.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\jquery.ba-bbq.min.js">
+    <Content Include="www\scripts\LocalSettings.js" />
+    <Content Include="www\scripts\sha512.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\jquery.mousewheel.min.js">
+    <Content Include="www\scripts\shared.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\jquery.tablesorter.combined.min.js">
+    <Content Include="www\scripts\ToasterHelper.js" />
+    <Content Include="www\scripts\Util.js" />
+    <Content Include="www\store\store.js" />
+    <Content Include="www\styles\theme.green.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\KeycodeTranslator.js">
+    <Content Include="www\styles\toastr.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\Dialog.js">
+    <Content Include="www\styles\admin.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\sha512.js">
+    <Content Include="www\styles\Client.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="www\Scripts\shared.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\Scripts\TableEditor.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\Styles\theme.green.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\Styles\toastr.min.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\Scripts\toastr.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\Styles\admin.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\Styles\Client.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\Styles\Dialog.css">
+    <Content Include="www\styles\Dialog.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="www\test.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Admin\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>echo Copying native dependencies...
 copy "$(ProjectDir)include\sqlite3\sqlite3.dll" "$(TargetDir)sqlite3.dll"
 copy "$(ProjectDir)include\sqlite3\libsqlite3.so" "$(TargetDir)libsqlite3.so"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>cd "$(ProjectDir)"
+echo [disabled] node "$(ProjectDir)node_modules\webpack\bin\webpack"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

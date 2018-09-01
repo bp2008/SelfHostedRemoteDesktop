@@ -40,9 +40,10 @@ namespace MasterServer.Database
 
 				// Pre-populate database with admin user only if no other users exist.
 				int userCount = db.CreateCommand("SELECT COUNT (*) FROM [User]").ExecuteScalar<int>();
+				User admin = null;
 				if (userCount == 0)
 				{
-					User admin = new User("admin", "admin", "Administrator", "admin@example.com", true);
+					admin = new User("admin", "admin", "Administrator", "admin@example.com", true);
 					admin.Permanent = true;
 					db.Insert(admin);
 					//List<AbstractSetting> newSettings = new List<AbstractSetting>();
@@ -64,19 +65,21 @@ namespace MasterServer.Database
 					group_uncat.Permanent = true;
 					db.Insert(group_uncat);
 
-					//for (int a = 1; a <= 2; a++)
-					//{
-					//	UserGroup group = new UserGroup("Group " + a);
-					//	db.Insert(group);
-					//	for (int b = 1; b <= 3; b++)
-					//	{
-					//		Computer comp = new Computer();
-					//		comp.Name = "Computer " + a + "-" + b;
-					//		comp.PublicKey = "";
-					//		db.Insert(comp);
-					//		db.Insert(new ComputerGroupMembership(group.ID, comp.ID));
-					//	}
-					//}
+					for (int a = 1; a <= 2; a++)
+					{
+						UserGroup group = new UserGroup("Group " + a);
+						db.Insert(group);
+						for (int b = 1; b <= 3; b++)
+						{
+							Computer comp = new Computer();
+							comp.Name = "Computer " + a + "-" + b;
+							comp.PublicKey = "Fake Key " + comp.Name;
+							db.Insert(comp);
+							db.Insert(new ComputerGroupMembership(group.ID, comp.ID));
+						}
+						if (admin != null)
+							db.Insert(new UserGroupMembership(group.ID, admin.ID));
+					}
 				}
 
 				//// Pre-populate database with Administrators group only if no other groups exist.
@@ -254,6 +257,11 @@ namespace MasterServer.Database
 		{
 			return db.Query<ComputerGroupMembership>("SELECT * FROM ComputerGroupMembership WHERE ComputerID = ?", computerId).ToArray();
 		}
+		/// <summary>
+		/// Returns an array of groups that the specified computer ID is part of.
+		/// </summary>
+		/// <param name="computerId"></param>
+		/// <returns></returns>
 		public UserGroup[] GetComputerGroups(int computerId)
 		{
 			HashSet<int> groupIds = new HashSet<int>(GetComputerGroupMemberships(computerId).Select(m => m.GroupID));
@@ -329,6 +337,13 @@ namespace MasterServer.Database
 		public void AddUser(User user)
 		{
 			db.Insert(user);
+		}
+
+		public List<Computer> GetComputersInGroup(int groupId)
+		{
+			return db.Query<Computer>("SELECT c.* FROM Computer c "
+				+ "INNER JOIN ComputerGroupMembership m ON c.ID = m.ComputerID "
+				+ "WHERE m.GroupID = ?", groupId);
 		}
 		#region Security Keys
 		/// <summary>

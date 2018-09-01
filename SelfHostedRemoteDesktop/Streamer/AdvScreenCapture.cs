@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BPUtil;
-using SelfHostedRemoteDesktop.Native;
+using BPUtil.NativeWin;
 using SHRDLib;
 
 namespace SelfHostedRemoteDesktop.Streamer

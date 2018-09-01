@@ -18,7 +18,7 @@ namespace MasterServer.Database
 		public int ID { get; set; }
 
 		/// <summary>
-		/// The user name, max length 64 characters.
+		/// The unique user name, max length 64 characters.
 		/// </summary>
 		[MaxLength(64)]
 		[Unique]
@@ -27,13 +27,20 @@ namespace MasterServer.Database
 		public string Name { get; set; }
 
 		/// <summary>
-		/// A name that may be shown instead of or along with the user name in GUIs.
+		/// An optional, non-unique name that may override the user name in client GUIs.  Admin GUIs should not render [DisplayName] without [Name] also being present.
 		/// </summary>
 		[MaxLength(64)]
 		public string DisplayName { get; set; }
 
 		/// <summary>
+		/// A comment about the user that is only visible to administrators.
+		/// </summary>
+		[MaxLength(4096)]
+		public string CommentByAdmin { get; set; }
+
+		/// <summary>
 		/// The email address of the user, to be used for notifications about failed login attempts, password recovery, etc.
+		/// This is optional, not unique, and not a replacement for a user name.
 		/// </summary>
 		[MaxLength(128)]
 		public string Email { get; set; }
@@ -142,8 +149,7 @@ namespace MasterServer.Database
 		public bool AuthenticateUser(string response, byte[] challenge)
 		{
 			byte[] responseBytes = Hex.ToByteArray(response);
-			// TODO: Hex.ToByteArray(Hex.ToHex(challenge)) should exactly equal "challenge" by itself. Why do this extra work?
-			byte[] challengeHashed = Hash.GetSHA512Bytes(PasswordHash, Hex.ToByteArray(Hex.ToHex(challenge)));
+			byte[] challengeHashed = Hash.GetSHA512Bytes(PasswordHash, challenge);
 			byte[] onceHashedPw = ByteUtil.XORByteArrays(challengeHashed, responseBytes);
 			byte[] hashedAgain = Hash.GetSHA512Bytes(onceHashedPw);
 			bool authenticationSuccess = Util.ArraysEqual(hashedAgain, PasswordHash);
@@ -157,6 +163,15 @@ namespace MasterServer.Database
 		public UserGroupMembership[] GetGroupMemberships()
 		{
 			return ServiceWrapper.db.GetUserGroupMemberships(ID);
+		}
+
+		/// <summary>
+		/// Returns an array of UserGroup to which this user belongs.
+		/// </summary>
+		/// <returns></returns>
+		public UserGroup[] GetGroups()
+		{
+			return ServiceWrapper.db.GetUserGroups(ID);
 		}
 		///// <summary>
 		///// Returns a UserSettings object indicating the effective settings/permissions for this user.

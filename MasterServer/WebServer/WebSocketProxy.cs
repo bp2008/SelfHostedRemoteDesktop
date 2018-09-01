@@ -81,14 +81,14 @@ namespace MasterServer
 				ComputerGroupMembership[] cgm = computer.GetGroupMemberships();
 				if (cgm.Length == 0)
 				{
-					Logger.Info("Non-admin user " + user.ID + " (" + user.Name + ") attempted to access computer " + computer.ID + " (" + computer.Name + ") but computer has no group memberships");
+					Logger.Info("Non-admin user " + user.ID + " (" + user.Name + ") attempted to access computer " + computer.ID + " (" + computer.Name + ") but computer has no group memberships.");
 					p.writeFailure("403 Forbidden");
 					return;
 				}
 				UserGroupMembership[] ugm = user.GetGroupMemberships();
 				if (ugm.Length == 0)
 				{
-					Logger.Info("Non-admin user " + user.ID + " (" + user.Name + ") attempted to access computer " + computer.ID + " (" + computer.Name + ") but user has no group memberships");
+					Logger.Info("Non-admin user " + user.ID + " (" + user.Name + ") attempted to access computer " + computer.ID + " (" + computer.Name + ") but user has no group memberships.");
 					p.writeFailure("403 Forbidden");
 					return;
 				}

@@ -386,6 +386,67 @@ namespace SelfHostedRemoteDesktop
 				throw;
 			}
 		}
+		/// <summary>
+		/// Writes the string as UTF8 (no byte order mark).
+		/// </summary>
+		/// <param name="str"></param>
+		/// <returns></returns>
+		public int WriteUtf8(string str)
+		{
+			try
+			{
+				WaitUntilConnected();
+				return ByteUtil.WriteUtf8(str, pipe);
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
+		}
+		/// <summary>
+		/// <para>Writes the length of the string as a 16 bit unsigned integer, then writes the string.</para>
+		/// <para>The string will be encoded as UTF8 with no byte order mark.</para>
+		/// <para>Returns the number of bytes written.</para>
+		/// <para>Throws an exception if the byte array is larger than a 16 bit unsigned integer can hold.</para>
+		/// </summary>
+		/// <param name="str">String to write.</param>
+		/// <exception cref="ArgumentException">If the string is longer than 65535 characters or bytes.</exception>
+		public ushort WriteUtf8_16(string str)
+		{
+			try
+			{
+				WaitUntilConnected();
+				return ByteUtil.WriteUtf8_16(str, this);
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
+		}
+		/// <summary>
+		/// <para>Writes the length of the string as a 32 bit unsigned integer, then writes the string.</para>
+		/// <para>The string will be encoded as UTF8 with no byte order mark.</para>
+		/// <para>Returns the number of bytes written.</para>
+		/// </summary>
+		/// <param name="str">String to write.</param>
+		public uint WriteUtf8_32(string str)
+		{
+			try
+			{
+				WaitUntilConnected();
+				return ByteUtil.WriteUtf8_32(str, this);
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
+		}
 		public short ReadInt16()
 		{
 			return BitConverter.ToInt16(ReadNBytesFromNetworkOrder(2), 0);
@@ -420,7 +481,53 @@ namespace SelfHostedRemoteDesktop
 		}
 		public string ReadUtf8(int lengthBytes)
 		{
-			return ByteUtil.ReadUtf8(ReadNBytes(lengthBytes));
+			try
+			{
+				WaitUntilConnected();
+				return ByteUtil.ReadUtf8(ReadNBytes(lengthBytes));
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
+		}
+		/// <summary>
+		/// Reads a UTF8 string (no byte order mark) from the stream, assuming the string's length is prepended as a 16 bit unsigned integer.
+		/// </summary>
+		/// <returns></returns>
+		public string ReadUtf8_16()
+		{
+			try
+			{
+				WaitUntilConnected();
+				return ByteUtil.ReadUtf8_16(this);
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
+		}
+		/// <summary>
+		/// Reads a UTF8 string (no byte order mark) from the stream, assuming the string's length is prepended as a 32 bit unsigned integer.
+		/// </summary>
+		/// <returns></returns>
+		public string ReadUtf8_32()
+		{
+			try
+			{
+				WaitUntilConnected();
+				return ByteUtil.ReadUtf8_32(this);
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message == "Pipe is broken.")
+					throw new StreamDisconnectedException();
+				throw;
+			}
 		}
 		/// <summary>
 		/// Reads a specific number of bytes from the stream, returning a byte array.  Ordinary stream.Read operations are not guaranteed to read all the requested bytes.

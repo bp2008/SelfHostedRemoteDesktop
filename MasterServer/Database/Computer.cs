@@ -56,6 +56,12 @@ namespace MasterServer.Database
 		public long LastDisconnect { get; set; }
 
 		/// <summary>
+		/// A comment about the computer that is only visible to administrators.
+		/// </summary>
+		[MaxLength(4096)]
+		public string CommentByAdmin { get; set; }
+
+		/// <summary>
 		/// Returns an array of ComputerGroupMembership to which this computer belongs.
 		/// </summary>
 		/// <returns></returns>

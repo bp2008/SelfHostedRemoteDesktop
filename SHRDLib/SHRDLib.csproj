@@ -53,6 +53,7 @@
     <Compile Include="BCrypt\SaltParseException.cs" />
     <Compile Include="HostConnectResult.cs" />
     <Compile Include="IdentityVerification.cs" />
+    <Compile Include="KeepAliveSender.cs" />
     <Compile Include="NetCommand\Command.cs" />
     <Compile Include="NetCommand\DesktopInfo.cs" />
     <Compile Include="NetCommand\HostAuthenticationType.cs" />

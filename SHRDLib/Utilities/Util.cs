@@ -132,13 +132,13 @@ namespace SHRDLib
 		{
 			int attempt = 1;
 			Stopwatch sw = Stopwatch.StartNew();
-			while (attempt <= maxAttempts // False when condition B is met
-				&& (attempt > minAttempts && sw.ElapsedMilliseconds >= timeLimitMs)) // False when condition C is met
+			while (attempt <= maxAttempts // Test Condition B
+				&& !(attempt > minAttempts && sw.ElapsedMilliseconds >= timeLimitMs)) // Test Condition C
 			{
 				if (waitBetweenAttempts > -1 && attempt > 1)
 					Thread.Sleep(waitBetweenAttempts);
 				if (func(attempt))
-					return true; // Condition A is met
+					return true; // Condition A
 				attempt++;
 			}
 			return false;

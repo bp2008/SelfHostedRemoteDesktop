@@ -145,7 +145,7 @@ var jsKeycodeDictionary =
 function JsKeycodeToWinKeycode(jsKeycode)
 {
 	var winKeycode = jsKeycodeDictionary[jsKeycode];
-	if (typeof winKeycode == 'undefined')
+	if (typeof winKeycode === 'undefined')
 		return -1;
 	return winKeycode[0];
 }

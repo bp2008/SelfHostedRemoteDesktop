@@ -32,8 +32,14 @@ namespace MasterServer
 						line = Console.ReadLine().ToLower();
 						if (line == "web")
 						{
-							Console.WriteLine("Launching http://127.0.0.1:8088/admin");
-							Process.Start("http://127.0.0.1:8088/admin");
+							Console.WriteLine("Launching http://127.0.0.1:8088/login");
+							Process.Start("http://127.0.0.1:8088/login");
+						}
+						else if (line == "dev")
+						{
+							ServiceWrapper.settings.devMode = !ServiceWrapper.settings.devMode;
+							ServiceWrapper.settings.Save();
+							Console.WriteLine("Dev mode: " + ServiceWrapper.settings.devMode);
 						}
 					}
 					while (line != "exit");

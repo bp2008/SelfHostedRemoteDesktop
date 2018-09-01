@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SelfHostedRemoteDesktop;
-using SelfHostedRemoteDesktop.Native;
-using SHRDLib;
+using BPUtil;
+using BPUtil.NativeWin;
 
 namespace SelfHostedRemoteDesktop.Streamer
 {

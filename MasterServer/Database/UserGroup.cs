@@ -22,6 +22,7 @@ namespace MasterServer.Database
 		[MaxLength(64)]
 		[Unique]
 		[NotNull]
+		[Collation("nocase")]
 		public string Name { get; set; }
 		
 		/// <summary>
