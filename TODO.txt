@@ -175,6 +175,12 @@ Master Server needs to be able to query the Service for things:
 * List of processes
 
 The client needs to be able to open a web socket connection to the Master Server, providing arguments as part of the web socket URL (including authentication).  Master Server verifies that the user has access to the requested machine, then arranges a proxied Web Socket connection to the remote machine's SHRD Service.  The Service opens a connection to the Master Server to accomodate this, then feeds that connection into its own Web Socket Server.
+* Maybe the client should be given a security code that the Host Service knows.  If a valid security code is not the first thing received by the Host Service on its web socket server, the Host Service will terminate the connection.  This is mostly for the sake of future peer-to-peer connections.
+* The Master Server should tell the Host Service about the client that wishes to connect (user name at least).
+
+Peer-to-peer connections.
+* The Host Service sends the port its web socket server listens on along with a list of all its IP addresses (up to 10 addresses? 5? 25?) to the client.  The client can attempt to connect directly to each of these addresses in order to establish a peer-to-peer connection, avoiding the latency of proxying through the master server.  This is also the main purpose of the "security code" required for a client to communicate with a host service.
+* Before implementing the above, consider the costs and benefits of having a Host Service able to serve its own web interface so that it can be used even if the master server is unavailable.  It'd have to be secure which likely means UN/PW auth, which would be a lot of hassle to set up.  Although it may be possible for the master server to periodically share the list of users/salts/passwordHashes to host clients so the same UN/PW will work when communicating directly with a Host Service.  For discoverability's sake, it may be necessary to have a Windows native client so we can do discovery broadcasts.
 
 * The Master Server needs to officially support proxy servers and get the real remote IP address from a header ONLY IF the socket connection's remote IP address matches a configured proxy server.
 * User login logging, both successes and failures, with remote IP address.
