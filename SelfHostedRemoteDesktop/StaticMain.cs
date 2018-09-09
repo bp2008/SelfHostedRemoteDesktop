@@ -14,6 +14,10 @@ namespace SelfHostedRemoteDesktop
 {
 	public static class StaticMain
 	{
+		/// <summary>
+		/// This is the main entry point for the SHRD host service.
+		/// </summary>
+		/// <param name="args"></param>
 		public static void Run(string[] args)
 		{
 			string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;

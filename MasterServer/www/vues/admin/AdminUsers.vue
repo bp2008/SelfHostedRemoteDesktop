@@ -22,7 +22,7 @@
 					, { label: 'Name', field: 'Name', type: 'text' }
 					, { label: 'DisplayName', field: 'DisplayName', type: 'text' }
 					, { label: 'Email', field: 'Email', type: 'text' }
-					, { label: 'IsAdmin', field: 'DisplayName', type: 'boolean' }
+					, { label: 'IsAdmin', field: 'IsAdmin', type: 'boolean' }
 					, { label: 'Groups', field: 'Groups', type: 'text', sortable: false, formatFn: this.formatGroups }
 
 				],
@@ -36,9 +36,9 @@
 			loadUserList()
 			{
 				this.loading = true;
-				//ExecJSON({ cmd: "admin/getUsers" }).then(response => { this.rows = response.Users; })
-				//	.catch(err => { this.error = err.message; })
-				//	.finally(() => { this.loading = false; });
+				ExecJSON({ cmd: "admin/getUsers" }).then(response => { this.rows = response.Users; })
+					.catch(err => { this.error = err.message; })
+					.finally(() => { this.loading = false; });
 			},
 			formatGroups(groups)
 			{

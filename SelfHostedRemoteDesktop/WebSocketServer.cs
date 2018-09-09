@@ -18,7 +18,6 @@ namespace SelfHostedRemoteDesktop
 	public class SHRDWebSocketServer
 	{
 		WebSocketServer srv;
-		TcpClient tcpc = null;
 		public SHRDWebSocketServer(int port)
 		{
 			srv = new WebSocketServer(port, false);
@@ -31,18 +30,32 @@ namespace SelfHostedRemoteDesktop
 			};
 			srv.AddWebSocketService<SHRDWebSocketBehavior>("/SHRD");
 			Logger.Info("WebSocket Service Added on port " + port + ": /SHRD");
-			//tcpc = new TcpClient();
-			//tcpc.BeginConnect("localhost", 8088, onTcpcConnect, tcpc);
+		}
+
+		/// <summary>
+		/// Opens a connection to the Master Server and creates the most basic possible 
+		/// </summary>
+		/// <param name="connectionKey"></param>
+		public void BeginProxiedConnection(string connectionKey)
+		{
+			TcpClient tcpc = new TcpClient();
+			tcpc.BeginConnect("localhost", 8088, onTcpcConnect, new { tcpc, connectionKey });
 		}
 
 		private void onTcpcConnect(IAsyncResult ar)
 		{
 			if (ar.IsCompleted)
 			{
-				byte[] buf = Encoding.UTF8.GetBytes("GET /WebSocketProxy HTTP/1.1\n\n");
+				dynamic args = (dynamic)ar.AsyncState;
+				TcpClient tcpc = (TcpClient)args.tcpc;
+				string connectionKey = (string)args.connectionKey;
+
+				byte[] buf = Encoding.UTF8.GetBytes("GET /WebSocketProxy" + connectionKey + " HTTP/1.1\r\n\r\n");
 				tcpc.GetStream().Write(buf, 0, buf.Length);
 				srv.AcceptTcpClient(tcpc);
 			}
+			else
+				Logger.Debug("SHRDWebSocketServer.onTcpcConnect with IsCompleted == false");
 		}
 
 		public void Start()
@@ -274,7 +287,7 @@ namespace SelfHostedRemoteDesktop
 			{
 				try
 				{
-					// streamLoop itself isn't in the stack trace from what I've seen! So I've nexted the logic into another method to help with debugging.
+					// streamLoop itself isn't in the stack trace from what I've seen! So I've nested the logic into another method to help with debugging.
 					streamLoop_inner(objArgs);
 				}
 				catch (ThreadAbortException)

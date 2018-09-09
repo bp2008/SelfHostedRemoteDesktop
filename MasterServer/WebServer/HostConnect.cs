@@ -97,11 +97,14 @@ namespace MasterServer
 						bool computerIsNew = computer == null;
 						if (computerIsNew)
 						{
+							Logger.Info("computerIsNew: " + name);
 							computer = new Computer();
 							computer.PublicKey = publicKey;
 							computer.Name = name; // Only set the name if this is the first time we've seen the computer.  Future name changes will only happen in the SHRD administration interface.
 							computer.LastDisconnect = TimeUtil.GetTimeInMsSinceEpoch();
 						}
+						else
+							Logger.Info("Existing computer is reconnecting: " + computer.ID + " (" + computer.Name + ")");
 
 						// Auth 2.6) Read the Host version string.
 						int hostVersionLength = authResponse.ReadByte();
@@ -120,9 +123,16 @@ namespace MasterServer
 						try
 						{
 							if (computerIsNew)
+							{
 								ServiceWrapper.db.AddComputer(computer);
+								// TODO: Remove this TEMPORARY LOGIC to add this computer to Group 1
+								ServiceWrapper.db.AddComputerGroupMembership(computer.ID, 2);
+							}
 							else
+							{
 								ServiceWrapper.db.UpdateComputer(computer);
+								ServiceWrapper.db.AddComputerGroupMembership(computer.ID, 2);
+							}
 						}
 						catch (ThreadAbortException) { throw; }
 						catch (Exception ex)
@@ -267,7 +277,7 @@ namespace MasterServer
 				// Write proxy key as string.  This is all the Host Service actually needs to be able to initiate the proxied web socket connection.
 				ByteUtil.WriteUtf8_16(strProxyKey, stream);
 
-				// Write the IP address as a string.  A Host Service could find this useful for logging or filtering purposes.
+				// Write the source IP address as a string.  A Host Service could find this useful for logging or filtering purposes.
 				ByteUtil.WriteUtf8_16(sourceIp.ToString(), stream);
 			});
 		}
@@ -313,6 +323,7 @@ namespace MasterServer
 			disconnected = true;
 			Try.Catch_RethrowThreadAbort(keepAlive.Dispose);
 			Try.Catch_RethrowThreadAbort(p.tcpClient.Close);
+			Logger.Info("UpdateComputerLastDisconnectTime: " + ComputerID);
 			Try.Catch_RethrowThreadAbort(() => ServiceWrapper.db.UpdateComputerLastDisconnectTime(ComputerID));
 		}
 	}

@@ -255,9 +255,13 @@ namespace SelfHostedRemoteDesktop.ServerConnect
 			}
 			finally
 			{
-				if (keepAlive != null)
+				// Make local copies of these references so they can't become null after the null check.
+				KeepAliveSender k = keepAlive;
+				if (k != null)
 					Try.Catch_RethrowThreadAbort(keepAlive.Stop);
-				Try.Catch_RethrowThreadAbort(tcpClient.Close);
+				TcpClient c = tcpClient;
+				if (c != null)
+					Try.Catch_RethrowThreadAbort(c.Close);
 			}
 			return new HostConnectResult();
 		}
@@ -283,7 +287,10 @@ namespace SelfHostedRemoteDesktop.ServerConnect
 						Logger.Info("Received Command.KeepAlive");
 						break;
 					case Command.WebSocketConnectionRequest:
-						Logger.Info("Received Command.KeepAlive");
+						Logger.Info("Received Command.WebSocketConnectionRequest");
+						string proxyKey = ByteUtil.ReadUtf8_16(stream);
+						string sourceIp = ByteUtil.ReadUtf8_16(stream);
+						ServiceWrapper.BeginOutgoingWebSocketConnection(proxyKey, sourceIp);
 						break;
 					default:
 						lock (writeLock)

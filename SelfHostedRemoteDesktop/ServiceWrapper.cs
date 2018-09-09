@@ -55,16 +55,22 @@ namespace SelfHostedRemoteDesktop
 			isStopped = false;
 			Logger.StartLoggingThreads();
 			//httpServer.Start();
-			webSocketServer.Start();
+			//webSocketServer.Start();
 			hostConnect.Connect();
 		}
 		public static void Stop()
 		{
 			isStopped = true;
 			//Try.Catch(() => { httpServer?.Stop(); });
-			Try.Catch(() => { webSocketServer?.Stop(); });
+			//Try.Catch(() => { webSocketServer?.Stop(); });
 			Try.Catch(Logger.StopLoggingThreads);
 			Try.Catch(() => { hostConnect?.Disconnect(); });
+		}
+
+		public static void BeginOutgoingWebSocketConnection(string proxyKey, string sourceIp)
+		{
+			Logger.Info("Accepting web socket connection request from " + sourceIp);
+			webSocketServer.BeginProxiedConnection(proxyKey);
 		}
 	}
 }

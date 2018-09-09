@@ -99,7 +99,15 @@ namespace SHRDLib
 				return;
 			stopped = true;
 			Try.Catch_RethrowThreadAbort(keepAliveThread.Abort);
-			Try.Catch_RethrowThreadAbort(() => onStop(this));
+			try
+			{
+				onStop(this);
+			}
+			catch (ThreadAbortException) { throw; }
+			catch (Exception ex)
+			{
+				Logger.Debug(ex, "Exception thrown when calling onStop action");
+			}
 		}
 		private void KeepAliveLoop()
 		{
@@ -109,7 +117,15 @@ namespace SHRDLib
 				while (!stopped)
 				{
 					if (IsTimeToKeepalive())
-						keepalive(this);
+						try
+						{
+							keepalive(this);
+						}
+						catch (ThreadAbortException) { throw; }
+						catch (Exception ex)
+						{
+							Logger.Debug(ex, "Exception thrown when calling keepalive action");
+						}
 					Thread.Sleep(1000);
 				}
 			}

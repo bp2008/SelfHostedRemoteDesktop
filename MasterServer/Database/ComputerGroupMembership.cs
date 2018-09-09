@@ -17,24 +17,24 @@ namespace MasterServer.Database
 		public int ID { get; set; }
 
 		/// <summary>
-		/// A group ID.
-		/// </summary>
-		[NotNull]
-		public int GroupID { get; set; }
-
-		/// <summary>
 		/// The computer ID of a computer belonging to this group.
 		/// </summary>
 		[NotNull]
 		public int ComputerID { get; set; }
 
+		/// <summary>
+		/// A group ID.
+		/// </summary>
+		[NotNull]
+		public int GroupID { get; set; }
+
 		public ComputerGroupMembership()
 		{
 		}
-		public ComputerGroupMembership(int GroupID, int ComputerID)
+		public ComputerGroupMembership(int ComputerID, int GroupID)
 		{
-			this.GroupID = GroupID;
 			this.ComputerID = ComputerID;
+			this.GroupID = GroupID;
 		}
 	}
 }

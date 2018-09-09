@@ -75,7 +75,7 @@ namespace MasterServer.Database
 							comp.Name = "Computer " + a + "-" + b;
 							comp.PublicKey = "Fake Key " + comp.Name;
 							db.Insert(comp);
-							db.Insert(new ComputerGroupMembership(group.ID, comp.ID));
+							AddComputerGroupMembership(comp.ID, group.ID);
 						}
 						if (admin != null)
 							db.Insert(new UserGroupMembership(group.ID, admin.ID));
@@ -304,6 +304,7 @@ namespace MasterServer.Database
 		/// <summary>
 		/// Adds a computer. Because computers are added automatically during the initial connection of a new Host, this method may change the provided name without notice if required to ensure uniqueness.
 		/// If unsuccessful, an exception is thrown.
+		/// If successful, the computer's ID field will be valid when this method returns.
 		/// </summary>
 		/// <param name="computer"></param>
 		/// <returns></returns>
@@ -325,6 +326,10 @@ namespace MasterServer.Database
 			});
 		}
 
+		/// <summary>
+		/// Updates the specified computer in the database, identified by its ID field.
+		/// </summary>
+		/// <param name="computer"></param>
 		public void UpdateComputer(Computer computer)
 		{
 			db.Update(computer);
@@ -344,6 +349,29 @@ namespace MasterServer.Database
 			return db.Query<Computer>("SELECT c.* FROM Computer c "
 				+ "INNER JOIN ComputerGroupMembership m ON c.ID = m.ComputerID "
 				+ "WHERE m.GroupID = ?", groupId);
+		}
+		public bool ComputerInGroup(int computerId, int groupId)
+		{
+			return 0 != db.ExecuteScalar<int>("SELECT 1 FROM ComputerGroupMembership WHERE ComputerID = ? AND GroupID = ?", computerId, groupId);
+		}
+
+		/// <summary>
+		/// Adds a computer group membership for the specified computer Id and group Id.
+		/// This method guards against duplicate memberships.
+		/// </summary>
+		/// <param name="computerId"></param>
+		/// <param name="groupId"></param>
+		/// <returns></returns>
+		public void AddComputerGroupMembership(int computerId, int groupId)
+		{
+			db.RunInTransaction(() =>
+			{
+				if (!ComputerInGroup(computerId, groupId))
+				{
+					Logger.Info("Adding ComputerGroupMembership " + computerId + ", " + groupId);
+					db.Insert(new ComputerGroupMembership(computerId, groupId));
+				}
+			});
 		}
 		#region Security Keys
 		/// <summary>

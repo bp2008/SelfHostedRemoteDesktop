@@ -32,6 +32,11 @@ namespace SelfHostedRemoteDesktop.Streamer
 		private static DesktopInfo desktopInfo;
 		private static Stopwatch compatibleDesktopCaptureModeClock = new Stopwatch();
 		private static int timeToUseCompatibleDesktopCaptureMode = 5000;
+
+		/// <summary>
+		/// This is the main entry point for the SHRD streamer.
+		/// </summary>
+		/// <param name="args"></param>
 		public static void Run(string[] args)
 		{
 			string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;

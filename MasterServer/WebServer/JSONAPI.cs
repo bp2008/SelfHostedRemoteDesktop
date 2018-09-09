@@ -276,7 +276,7 @@ namespace MasterServer
 				HostConnectHandle handle = HostConnect.GetOnlineComputer(ID);
 				if (handle != null)
 				{
-					Uptime = TimeUtil.GetTimeInMsSinceEpoch(handle.ConnectTime);
+					Uptime = (long)(DateTime.UtcNow - handle.ConnectTime).TotalMilliseconds;
 				}
 			}
 		}
@@ -321,7 +321,7 @@ namespace MasterServer
 				HostConnectHandle handle = HostConnect.GetOnlineComputer(ID);
 				if (handle != null)
 				{
-					Uptime = TimeUtil.GetTimeInMsSinceEpoch(handle.ConnectTime);
+					Uptime = (long)(DateTime.UtcNow - handle.ConnectTime).TotalMilliseconds;
 				}
 			}
 		}
