@@ -1,7 +1,7 @@
 ﻿export default function ExecJSON(args)
 {
 	if (!args.session)
-		args.session = settings.shrd_session;
+		args.session = window.myApp.$store.getters.sid;
 	return fetch(appContext.appPath + 'json', {
 		method: 'POST',
 		headers: {
@@ -9,20 +9,20 @@
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(args)
-	}).then(response => response.json()).then(jsonResponse =>
+	}).then(response => response.json()).then(data =>
 	{
-		if (jsonResponse.success)
-			return Promise.resolve(jsonResponse);
+		if (data.success)
+			return Promise.resolve(data);
 		else
 		{
-			if (jsonResponse.error === "missing session" || jsonResponse.error === "invalid session")
+			if (data.error === "missing session" || data.error === "invalid session")
 			{
-				console.log(args.cmd + ' error: "' + jsonResponse.error + '". Redirecting to login.');
+				console.log(args.cmd + ' error: "' + data.error + '". Redirecting to login.');
 				window.location.href = appContext.appPath + "login";
 			}
-			else if (!(args.cmd === 'login' && jsonResponse.error === 'login challenge'))
-				console.error("server json handler returned error response", args, jsonResponse);
-			return Promise.reject(new ApiError(jsonResponse.error, jsonResponse));
+			else if (!(args.cmd === 'login' && data.error === 'login challenge'))
+				console.error("server json handler returned error response", args, data);
+			return Promise.reject(new ApiError(data.error, data));
 		}
 	}).catch(err =>
 	{
@@ -31,10 +31,10 @@
 }
 export class ApiError extends Error
 {
-	constructor(message, response)
+	constructor(message, data)
 	{
 		super(message);
 		this.name = "ApiError";
-		this.response = response;
+		this.data = data;
 	}
 }

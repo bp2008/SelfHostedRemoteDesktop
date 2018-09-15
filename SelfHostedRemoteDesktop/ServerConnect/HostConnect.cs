@@ -39,6 +39,10 @@ namespace SelfHostedRemoteDesktop.ServerConnect
 		/// </summary>
 		Connecting,
 		/// <summary>
+		/// Connection is established and authentication has begun.
+		/// </summary>
+		Authenticating,
+		/// <summary>
 		/// Authentication is complete and this HostConnect instance is ready to send and receive commands.
 		/// </summary>
 		Connected,
@@ -66,7 +70,7 @@ namespace SelfHostedRemoteDesktop.ServerConnect
 		private object writeLock = new object();
 
 		/// <summary>
-		/// Initially Disconnected, state can be Connecting, Connected, Disconnected.
+		/// Initially Disconnected, state can be Connecting, Authenticating, Connected, Disconnected.
 		/// </summary>
 		public HostConnectClientState State { get; private set; } = HostConnectClientState.Disconnected;
 		/// <summary>
@@ -156,6 +160,8 @@ namespace SelfHostedRemoteDesktop.ServerConnect
 						return new HostConnectResult(ProtocolErrors.HttpsNegotiationFailed);
 					}
 				}
+				State = HostConnectClientState.Authenticating;
+				StateChanged(this, new StateChangedEventArgs(null, State));
 				{
 					// Create HTTP request.
 					StringBuilder sb = new StringBuilder();

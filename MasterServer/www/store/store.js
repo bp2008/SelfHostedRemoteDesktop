@@ -2,6 +2,7 @@
 import Vuex from 'vuex';
 Vue.use(Vuex);
 import createPersistedState from 'vuex-persistedstate';
+import ExecJSON from 'appRoot/api/api.js';
 
 export default function CreateStore()
 {
@@ -11,11 +12,12 @@ export default function CreateStore()
 		state: {
 			appPath: "/",
 			sid: "",
+			clientComputerGroups: []
 			//$scroll: new Object() // $ = non reactive.
 		},
 
-		mutations: {
-			InitAppPath: (state, appPath) =>
+		mutations: { // mutations must not be async
+			InitAppPath(state, appPath)
 			{
 				state.appPath = appPath;
 			},
@@ -23,18 +25,59 @@ export default function CreateStore()
 			//{
 			//	state.$scroll[key] = value;
 			//},
-			SetSid: (state, sid) =>
+			SetSid(state, sid)
 			{
 				state.sid = sid;
+			},
+			SetClientComputerGroups(state, clientComputerGroups)
+			{
+				state.clientComputerGroups = clientComputerGroups;
 			}
 		},
 		actions: { // actions can be async
+			getClientComputerGroups(store)
+			{
+				return ExecJSON({ cmd: "getComputers" }).then(data =>
+				{
+					store.commit("SetClientComputerGroups", data.Groups);
+					return Promise.resolve(data.Groups);
+				}
+				).catch(err =>
+				{
+					return Promise.reject(err);
+				});
+			},
+			getClientComputerInfo(store, computerId)
+			{
+				var computer = FindComputer(store, computerId);
+				if (computer)
+					return Promise.resolve(computer);
+				return store.dispatch("getClientComputerGroups").then(() =>
+				{
+					var computer = FindComputer(store, computerId);
+					if (computer)
+						return Promise.resolve(computer);
+					else
+						return Promise.reject(new Error("Could not find computer with ID " + computerId));
+				});
+			}
 		},
 		getters: {
-			sid: function (state)
+			sid(state)
 			{
 				return state.sid;
 			}
 		}
 	});
-};
+}
+function FindComputer(store, computerId)
+{
+	for (let i = 0; i < store.state.clientComputerGroups.length; i++)
+	{
+		let group = store.state.clientComputerGroups[i];
+		let computer = group.Computers.find(c => c.ID === computerId);
+		if (computer)
+			return Promise.resolve(computer);
+	}
+	return null;
+}

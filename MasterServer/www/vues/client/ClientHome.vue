@@ -10,8 +10,7 @@
 </template>
 
 <script>
-	import ExecJSON from 'appRoot/api/api.js';
-	import ComputerGroup from 'appRoot/vues/client/computers/ComputerGroup.vue';
+	import ComputerGroup from 'appRoot/vues/client/controls/ComputerGroup.vue';
 
 	export default {
 		components: { ComputerGroup },
@@ -20,8 +19,7 @@
 			return {
 				error: null,
 				loading: false,
-				computerGroups: [
-				]
+				computerGroups: []
 			};
 		},
 		computed: {
@@ -30,9 +28,9 @@
 			loadComputerList()
 			{
 				this.loading = true;
-				ExecJSON({ cmd: "getComputers" }).then(response =>
+				this.$store.dispatch("getClientComputerGroups").then(groups =>
 				{
-					this.computerGroups = response.Groups;
+					this.computerGroups = groups;
 				}
 				).catch(err =>
 				{

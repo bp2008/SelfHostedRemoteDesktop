@@ -3,16 +3,16 @@
 		<div class="groupName">{{group.Name}}</div>
 		<div class="computers">
 			<div v-if="!group.Computers || group.Computers.length === 0">There are no computers in this group.</div>
-			<Computer class="computer" v-for="computer in group.Computers" :key="computer.ID" :computer="computer"></Computer>
+			<ComputerLink class="computer" v-for="computer in group.Computers" :key="computer.ID" :computer="computer" />
 		</div>
 	</div>
 </template>
 
 <script>
-	import Computer from 'appRoot/vues/client/computers/Computer.vue';
+	import ComputerLink from 'appRoot/vues/client/controls/ComputerLink.vue';
 
 	export default {
-		components: { Computer },
+		components: { ComputerLink },
 		props: {
 			group: {
 				type: Object,
@@ -46,10 +46,12 @@
 		color: #FF0000;
 		font-weight: bold;
 	}
+
 	.computerGroupRoot
 	{
 		max-width: 600px;
 	}
+
 	.groupName
 	{
 		font-size: 20px;

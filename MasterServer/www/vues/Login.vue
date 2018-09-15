@@ -36,11 +36,11 @@
 			{
 				this.loginEnabled = false;
 				var args = { cmd: "login", user: this.user };
-				ExecJSON(args).then(response =>
+				ExecJSON(args).then(data =>
 				{
-					settings.shrd_session = response.session;
+					this.$store.commit("SetSid", data.session);
 					this.loginEnabled = true;
-					this.HandleSuccessfulLogin(response);
+					this.HandleSuccessfulLogin(data);
 				}
 				).catch(err =>
 				{
@@ -51,12 +51,13 @@
 						return;
 					}
 
-					let response = err.response;
-					args.session = settings.shrd_session = response.session;
+					let data = err.data;
+					args.session = data.session;
+					this.$store.commit("SetSid", data.session);
 					try
 					{
 						// Use BCrypt on the password, using the salt provided by the server.
-						var bCryptResult = bcrypt.hashSync(this.pass, response.salt);
+						var bCryptResult = bcrypt.hashSync(this.pass, data.salt);
 						// Compute SHA512 so we have the desired output size for later XORing
 						var bCryptResultHex = util.bytesToHex(util.stringToUtf8ByteArray(bCryptResult));
 						var onceHashedPw = util.ComputeSHA512Hex(bCryptResultHex);
@@ -64,7 +65,7 @@
 						// However we won't do that in plain text.
 						// Hash one more time; PasswordHash is the value remembered by the server
 						var PasswordHash = util.ComputeSHA512Hex(onceHashedPw);
-						var challengeHashed = util.ComputeSHA512Hex(PasswordHash + response.challenge);
+						var challengeHashed = util.ComputeSHA512Hex(PasswordHash + data.challenge);
 						args.response = util.XORHexStrings(challengeHashed, onceHashedPw);
 					}
 					catch (ex)
@@ -73,10 +74,10 @@
 						this.loginEnabled = true;
 						return;
 					}
-					ExecJSON(args).then(response =>
+					ExecJSON(args).then(data =>
 					{
-						settings.shrd_session = response.session;
-						this.HandleSuccessfulLogin(response);
+						this.$store.commit("SetSid", data.session);
+						this.HandleSuccessfulLogin(data);
 					}
 					).catch(err =>
 					{

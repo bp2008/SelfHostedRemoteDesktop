@@ -2,7 +2,7 @@
 	<div class="homeRoot">
 		<p class="welcome">Welcome to {{systemName}} Remote Support</p>
 		<p><a class="getHelp" href="javascript:void(0)" @click="GetHelp">Get Help</a></p>
-		<p><router-link :to="{name:'login'}">Log in</router-link></p>
+		<p><router-link :to="{ name: 'login' }">Log in</router-link></p>
 	</div>
 </template>
 

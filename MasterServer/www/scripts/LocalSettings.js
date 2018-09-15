@@ -1,11 +1,11 @@
 ﻿var defaultGlobalSettings =
 	[
-		{
-			key: "shrd_session"
-			, value: ""
-		}
+		//{ // session is in the vuex store as "sid" so it isn't persisted in local storage.
+		//	key: "shrd_session"
+		//	, value: ""
+		//}
 	];
-var defaultClientSettings =
+var defaultHostSettings =
 	[
 		{
 			label: "Jpeg Quality"
@@ -72,7 +72,7 @@ function GetNamespaceLocalStorage(namespace)
 	{
 		toaster.Warning("Unable to validate namespace name \"" + htmlEncode(namespace) + "\". Settings for this client will not be persisted.", 10000);
 		var storageObj = GetDummyLocalStorage();
-		LoadDefaultSettings(storageObj, defaultClientSettings);
+		LoadDefaultSettings(storageObj, defaultHostSettings);
 		return storageObj;
 	}
 
@@ -87,7 +87,7 @@ function GetNamespaceLocalStorage(namespace)
 	{
 		return (localStorage[prefix + key] = value);
 	};
-	for (var i = 0; i < defaultClientSettings.length; i++)
+	for (var i = 0; i < defaultHostSettings.length; i++)
 	{
 		var tmp = function (key)
 		{
@@ -102,9 +102,9 @@ function GetNamespaceLocalStorage(namespace)
 						return wrappedStorage.setItem(key, value);
 					}
 				});
-		}(defaultClientSettings[i].key);
+		}(defaultHostSettings[i].key);
 	}
-	LoadDefaultSettings(wrappedStorage, defaultClientSettings);
+	LoadDefaultSettings(wrappedStorage, defaultHostSettings);
 	return wrappedStorage;
 }
 function ValidateNamespaceSimpleRules(val)
@@ -121,12 +121,12 @@ function ValidateNamespaceSimpleRules(val)
 	}
 	return true;
 }
-function GetClientSettingsDef(key)
+function GetHostSettingsDef(key)
 {
-	for (var i = 0; i < defaultClientSettings.length; i++)
+	for (var i = 0; i < defaultHostSettings.length; i++)
 	{
-		if (defaultClientSettings[i].key === key)
-			return defaultClientSettings[i];
+		if (defaultHostSettings[i].key === key)
+			return defaultHostSettings[i];
 	}
 }
 var globalSettings = localStorage;

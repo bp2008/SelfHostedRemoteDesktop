@@ -76,8 +76,14 @@
     <Compile Include="WebServer\WebSocketProxy.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="www\vues\client\computers\ComputerGroup.vue" />
-    <None Include="www\vues\client\computers\Computer.vue" />
+    <None Include="www\vues\client\computer\ClientComputerEvents.vue" />
+    <None Include="www\vues\client\computer\ClientComputerPerformance.vue" />
+    <None Include="www\vues\client\computer\ClientComputerSecurity.vue" />
+    <None Include="www\vues\client\computer\ClientComputerHome.vue" />
+    <None Include="www\vues\client\computer\ClientComputerLayout.vue" />
+    <None Include="www\vues\client\controls\ComputerLink.vue" />
+    <None Include="www\vues\client\controls\ComputerGroup.vue" />
+    <None Include="www\vues\client\controls\Computer.vue" />
     <None Include="www\vues\common\ScaleLoader.vue" />
     <None Include=".babelrc" />
     <None Include="App.config" />

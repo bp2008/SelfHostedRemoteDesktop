@@ -36,7 +36,7 @@
 			loadUserList()
 			{
 				this.loading = true;
-				ExecJSON({ cmd: "admin/getUsers" }).then(response => { this.rows = response.Users; })
+				ExecJSON({ cmd: "admin/getUsers" }).then(data => { this.rows = data.Users; })
 					.catch(err => { this.error = err.message; })
 					.finally(() => { this.loading = false; });
 			},

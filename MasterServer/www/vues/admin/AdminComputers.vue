@@ -34,11 +34,11 @@
 			loadComputerList()
 			{
 				this.loading = true;
-				ExecJSON({ cmd: "admin/getComputers" }).then(response =>
+				ExecJSON({ cmd: "admin/getComputers" }).then(data =>
 				{
-					for (let i = 0; i < response.Computers.length; i++)
+					for (let i = 0; i < data.Computers.length; i++)
 					{
-						let c = response.Computers[i];
+						let c = data.Computers[i];
 						if (c.Uptime > -1) // Computer is online
 						{
 							var dateLastConnect = new Date(Date.now() - c.Uptime);
@@ -53,7 +53,7 @@
 							c.StatusHtml = '<span class="compOffline">Disconnected since ' + GetFuzzyTime(timeSinceDisconnect) + ' at ' + GetDateStr(dateLastDisconnect) + '</span>';
 						}
 					}
-					this.rows = response.Computers;
+					this.rows = data.Computers;
 				}
 				).catch(err =>
 				{

@@ -49,7 +49,7 @@
 		created()
 		{
 		}
-	}
+	};
 </script>
 
 <style scoped>
