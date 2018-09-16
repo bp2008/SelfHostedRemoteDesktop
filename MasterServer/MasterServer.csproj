@@ -76,7 +76,15 @@
     <Compile Include="WebServer\WebSocketProxy.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="www\images\scrollD.png" />
+    <Content Include="www\images\scrollL.png" />
+    <Content Include="www\images\scrollR.png" />
+    <Content Include="www\images\scrollU.png" />
+    <Content Include="www\scripts\HostConnection.js" />
+    <Content Include="www\vues\client\remote\CustomScroll.css" />
     <None Include="www\vues\client\computer\ClientComputerEvents.vue" />
+    <None Include="www\vues\client\remote\RemoteDesktopConnection.vue" />
+    <None Include="www\vues\RemoteDesktopFull.vue" />
     <None Include="www\vues\client\computer\ClientComputerPerformance.vue" />
     <None Include="www\vues\client\computer\ClientComputerSecurity.vue" />
     <None Include="www\vues\client\computer\ClientComputerHome.vue" />

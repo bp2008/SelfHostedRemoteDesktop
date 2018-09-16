@@ -1,0 +1,126 @@
+﻿<template>
+	<div class="rdRoot customScroll">
+		<div class="loading" v-if="loading">
+			<div class="loadingCompName" v-if="computer && computer.Name">{{computer.Name}}</div>
+			<ScaleLoader />
+		</div>
+		<div class="loadingError" v-else-if="loadingError">An error occurred during loading: {{loadingError}}</div>
+		<div class="videoFrame" v-else-if="computer">
+			<canvas ref="myCanvas" class="videoFrameCanvas"></canvas>
+		</div>
+		<div class="loadingError" v-else>
+			An error occurred during loading: computer object is null
+		</div>
+	</div>
+</template>
+
+<script>
+	import HostConnection from 'appRoot/scripts/HostConnection.js';
+
+	export default {
+		components: {},
+		data: function ()
+		{
+			return {
+				computer: null,
+				loadingError: null,
+				loading: false,
+				host: null // Host Connection Handle
+			};
+		},
+		computed: {
+		},
+		methods: {
+			fetchData()
+			{
+				this.loading = true;
+				this.loadingError = null;
+				this.computer = { Name: "Loading" };
+				console.log("1", this);
+				this.$store.dispatch("getClientComputerInfo", parseInt(this.$route.params.computerId)).then(c =>
+				{
+					console.log("2", this, c);
+					this.computer = c;
+					this.host = new HostConnection(c.ID);
+				}
+				).catch(err =>
+				{
+					this.loadingError = err.message;
+					this.loading = false;
+				});
+			}
+		},
+		mounted()
+		{
+			let compatibilityTestResult = CompatibilityTest();
+			if (compatibilityTestResult)
+			{
+				this.loadingError = compatibilityTestResult;
+				return;
+			}
+
+			this.fetchData();
+		},
+		watch: {
+			'$route': 'fetchData' // called if the route changes
+		}
+	};
+
+	function CompatibilityTest()
+	{
+		if (typeof WebSocket !== "function")
+			return "Your browser does not support web sockets.";
+		if (typeof Storage !== "function")
+			return "Your browser does not support Local Storage.";
+		if (typeof localStorage !== "object")
+			return "Unable to access Local Storage.  Maybe it is disabled in your browser?";
+		return null;
+	}
+</script>
+
+<style scoped>
+	@import 'CustomScroll.css';
+
+	.rdRoot
+	{
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+		background-color: #000000;
+	}
+
+	.loading
+	{
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		font-size: 16pt;
+		color: #AAAAAA;
+	}
+
+	.loadingCompName
+	{
+		margin-bottom: 5px;
+	}
+
+	.loadingError
+	{
+		box-sizing: border-box;
+		margin: 20px;
+		padding: 10px 20px;
+		border: 2px solid #FF0000;
+		border-radius: 5px;
+		background-color: #FFFFFF;
+		color: #FF0000;
+		font-size: 12pt;
+	}
+
+	.videoFrame
+	{
+		position: relative;
+		background-color: #660000;
+	}
+</style>

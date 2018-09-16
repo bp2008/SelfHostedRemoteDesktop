@@ -15,6 +15,7 @@ import ClientComputerHome from 'appRoot/vues/client/computer/ClientComputerHome.
 import ClientComputerPerformance from 'appRoot/vues/client/computer/ClientComputerPerformance.vue';
 import ClientComputerSecurity from 'appRoot/vues/client/computer/ClientComputerSecurity.vue';
 import ClientComputerEvents from 'appRoot/vues/client/computer/ClientComputerEvents.vue';
+import RemoteDesktopFull from 'appRoot/vues/RemoteDesktopFull.vue';
 
 Vue.use(VueRouter);
 
@@ -57,6 +58,9 @@ export default function CreateRouter(store, basePath)
 					{ path: 'computers', component: AdminComputers, name: 'adminComputers' },
 					{ path: 'users', component: AdminUsers, name: 'adminUsers' }
 				]
+			},
+			{
+				path: basePath + 'remote/:computerId', component: RemoteDesktopFull, name: 'remoteDesktopFull'
 			}
 		],
 		$store: store

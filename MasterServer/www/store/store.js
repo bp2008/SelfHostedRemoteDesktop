@@ -49,12 +49,12 @@ export default function CreateStore()
 			},
 			getClientComputerInfo(store, computerId)
 			{
-				var computer = FindComputer(store, computerId);
+				let computer = FindComputer(store, computerId);
 				if (computer)
 					return Promise.resolve(computer);
 				return store.dispatch("getClientComputerGroups").then(() =>
 				{
-					var computer = FindComputer(store, computerId);
+					let computer = FindComputer(store, computerId);
 					if (computer)
 						return Promise.resolve(computer);
 					else
@@ -77,7 +77,7 @@ function FindComputer(store, computerId)
 		let group = store.state.clientComputerGroups[i];
 		let computer = group.Computers.find(c => c.ID === computerId);
 		if (computer)
-			return Promise.resolve(computer);
+			return computer;
 	}
 	return null;
 }

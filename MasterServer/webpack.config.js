@@ -67,9 +67,9 @@ module.exports =
 						{
 							loader: 'svg-sprite-loader',
 							options:
-								{
-									esModule: false
-								}
+							{
+								esModule: false
+							}
 						},
 						{
 							loader: 'image-webpack-loader'

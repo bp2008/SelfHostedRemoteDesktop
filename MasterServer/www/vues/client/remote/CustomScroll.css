@@ -1,0 +1,67 @@
+﻿.customScroll::-webkit-scrollbar
+{
+	width: 15px;
+	height: 15px;
+}
+
+.customScroll::-webkit-scrollbar-button
+{
+	background-color: #000000;
+	background-repeat: no-repeat;
+}
+
+	.customScroll::-webkit-scrollbar-button:vertical:increment
+	{
+		background-image: url("~/images/scrollD.png");
+	}
+
+	.customScroll::-webkit-scrollbar-button:vertical:decrement
+	{
+		background-image: url("~/images/scrollU.png");
+	}
+
+	.customScroll::-webkit-scrollbar-button:horizontal:increment
+	{
+		background-image: url("~/images/scrollR.png");
+	}
+
+	.customScroll::-webkit-scrollbar-button:horizontal:decrement
+	{
+		background-image: url("~/images/scrollL.png");
+	}
+
+	.customScroll::-webkit-scrollbar-button:hover
+	{
+		background-color: #353535;
+	}
+
+	.customScroll::-webkit-scrollbar-button:active
+	{
+		background-color: #444444;
+	}
+
+.customScroll::-webkit-scrollbar-thumb
+{
+	background-color: #353535;
+	border-radius: 8px;
+}
+
+	.customScroll::-webkit-scrollbar-thumb:hover
+	{
+		background-color: #3c3c3c;
+	}
+
+	.customScroll::-webkit-scrollbar-thumb:active
+	{
+		background-color: #444444;
+	}
+
+.customScroll::-webkit-scrollbar-track
+{
+	background-color: #222222;
+}
+
+.customScroll::-webkit-scrollbar-corner
+{
+	background-color: transparent;
+}

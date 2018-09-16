@@ -66,11 +66,11 @@ function resized()
 ///////////////////////////////////////////////////////////////
 function CompatibilityTest()
 {
-	if (typeof WebSocket != "function")
+	if (typeof WebSocket !== "function")
 		return "Your browser does not support web sockets.";
-	if (typeof Storage != "function")
+	if (typeof Storage !== "function")
 		return "Your browser does not support Local Storage.";
-	if (typeof localStorage != "object")
+	if (typeof localStorage !== "object")
 		return "Unable to access Local Storage.  Maybe it is disabled in your browser?";
 	return null;
 }

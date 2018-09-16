@@ -1,7 +1,9 @@
 ﻿<template>
-	<div class="cclayout">
+	<div v-if="loading" class="loading"><ScaleLoader /></div>
+	<div v-else class="cclayout">
 		<div class="cctitle">
 			<Computer :computer="computer"></Computer>
+
 			<!--{{computer.Name}} <span class="ccstatus">{{status}}</span>-->
 		</div>
 		<b-nav tabs class="ccnav">
@@ -47,21 +49,24 @@
 			}
 		},
 		methods: {
+			fetchData()
+			{
+				this.$store.dispatch("getClientComputerInfo", parseInt(this.$route.params.computerId)).then(c =>
+				{
+					this.computer = c;
+				}
+				).catch(err =>
+				{
+					this.computer = { Name: err.message };
+				});
+			}
 		},
 		mounted()
 		{
-			this.$store.dispatch("getClientComputerInfo", parseInt(this.$route.params.computerId)).then(c =>
-			{
-				this.computer = c;
-			}
-			).catch(err =>
-			{
-				this.computer = { Name: err.message };
-			});
+			this.fetchData();
 		},
-		created()
-		{
-			console.log(this.$store.getters.clientComputerGroups);
+		watch: {
+			'$route': 'fetchData' // called if the route changes
 		}
 	};
 </script>
