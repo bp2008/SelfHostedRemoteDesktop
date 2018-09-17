@@ -5,8 +5,12 @@
 			<ScaleLoader />
 		</div>
 		<div class="loadingError" v-else-if="loadingError">An error occurred during loading: {{loadingError}}</div>
-		<div class="videoFrame" v-else-if="computer">
+		<div class="videoFrame" v-else-if="computer && host">
 			<canvas ref="myCanvas" class="videoFrameCanvas"></canvas>
+			<div class="notConnected" v-if="host.connectionState != ConnectionState.Connected">
+				<div class="loadingCompName" v-if="computer && computer.Name">{{computer.Name}}</div>
+				<ScaleLoader />
+			</div>
 		</div>
 		<div class="loadingError" v-else>
 			An error occurred during loading: computer object is null
@@ -16,6 +20,8 @@
 
 <script>
 	import HostConnection from 'appRoot/scripts/HostConnection.js';
+
+	let ConnectionState = { Disconnected: 0, Authenticating: 1, Connected: 2 };
 
 	export default {
 		components: {},
@@ -36,12 +42,12 @@
 				this.loading = true;
 				this.loadingError = null;
 				this.computer = { Name: "Loading" };
-				console.log("1", this);
+				this.host = new HostConnection(c.ID, this.$store.getters.sid);
+				this.host.Connect();
 				this.$store.dispatch("getClientComputerInfo", parseInt(this.$route.params.computerId)).then(c =>
 				{
-					console.log("2", this, c);
 					this.computer = c;
-					this.host = new HostConnection(c.ID);
+					this.loading = false;
 				}
 				).catch(err =>
 				{

@@ -80,7 +80,13 @@
     <Content Include="www\images\scrollL.png" />
     <Content Include="www\images\scrollR.png" />
     <Content Include="www\images\scrollU.png" />
-    <Content Include="www\scripts\HostConnection.js" />
+    <Content Include="www\scripts\remote\JpegFragmentedVideoPlayer.js" />
+    <Content Include="www\scripts\remote\DesktopVideoPlayer.js" />
+    <Content Include="www\scripts\remote\objects\DesktopScreen.js" />
+    <Content Include="www\scripts\remote\objects\DesktopInfo.js" />
+    <Content Include="www\scripts\remote\WebSocketStreamer.js" />
+    <Content Include="www\scripts\remote\InputCatcher.js" />
+    <Content Include="www\scripts\remote\HostConnection.js" />
     <Content Include="www\vues\client\remote\CustomScroll.css" />
     <None Include="www\vues\client\computer\ClientComputerEvents.vue" />
     <None Include="www\vues\client\remote\RemoteDesktopConnection.vue" />
