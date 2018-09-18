@@ -1,43 +1,51 @@
 ﻿import * as Util from 'appRoot/scripts/Util.js';
 import DesktopInfo from 'appRoot/scripts/remote/objects/DesktopInfo.js';
 
-export default function WebSocketStreamer(computerId)
+export function WebSocketStreamer(computerId)
 {
 	var self = this;
 	var socket;
 	var ws_is_ready = false;
 	this.currentDesktopInfo = null;
+	this.onFrameReceived = null;
+	this.onStateChanged = null;
 
 	var currentStreamId = 0;
-
 	this.Connect = function (sessionId)
 	{
-		socket = new WebSocket("ws" + (loc.protocol === "https:" ? "s" : "") + "://" + location.hostname + ":" + location.port + "/WebSocketProxy/" + computerId + "/" + sessionId);
+		socket = new WebSocket("ws" + (location.protocol === "https:" ? "s" : "") + "://" + location.hostname + ":" + location.port + "/WebSocketClientProxy/" + computerId + "/" + sessionId + "/WebSocketStream_" + computerId);
+		raiseStateChanged();
 		socket.binaryType = "arraybuffer";
 		socket.onopen = function (event)
 		{
 			console.info("WebSocket Open");
 			ws_is_ready = true;
 			getDesktopInfo();
-			player.SocketOpen();
+			raiseStateChanged();
 		};
 		socket.onclose = function (event)
 		{
-			player.SocketClose();
-			var codeTranslation = WebSocketCloseCode.Translate(event.code);
-			var errmsg = "WebSocket Closed. (Code " + htmlEncode(event.code + (event.reason ? (" " + event.reason) : "")) + ")<br/>" + codeTranslation[0] + "<br/>" + codeTranslation[1];
+			var codeTranslation = Util.TranslateWebSocketCloseCode(event.code);
+			var errmsg = "Code " + Util.EscapeHTML(event.code + (event.reason ? " " + event.reason : "")) + "<br/>" + codeTranslation[0] + "<br/>" + codeTranslation[1];
+			toaster.Error("WebSocket Closed", errmsg, 30000);
 			// TODO: Replace modal dialog with a toast, a dimmed remote display, and maybe a reconnect icon overlayed in the middle.
 			//ModalDialog(errmsg);
-			console.info(errmsg);
+			raiseStateChanged();
 		};
 		socket.onerror = function (event)
 		{
+			// We can't find out what the error was.  Yay web standards.
 			toaster.Warning("WebSocket Error");
 		};
 		socket.onmessage = function (event)
 		{
 			HandleWSMessage(event.data);
 		};
+	};
+	this.Disconnect = function ()
+	{
+		socket.close();
+		socket = null;
 	};
 	var HandleWSMessage = function (data)
 	{
@@ -63,8 +71,9 @@ export default function WebSocketStreamer(computerId)
 					console.info("dropped frame from stream " + streamId + " because current stream is " + currentStreamId);
 					break;
 				}
-				player.NewFrame(data);
-				mainMenu.bytesThisSecond += data.byteLength;
+				if (typeof onFrameReceived === "function")
+					onFrameReceived(data);
+				//mainMenu.bytesThisSecond += data.byteLength;
 				acknowledgeFrame(streamId);
 				break;
 			case Command.ReproduceUserInput:
@@ -179,7 +188,10 @@ export default function WebSocketStreamer(computerId)
 	var SendToWebSocket = function (message)
 	{
 		if (typeof socket === "undefined" || !socket)
+		{
+			console.log("Outgoing websocket message suppressed because socket is not open");
 			return;
+		}
 		switch (socket.readyState)
 		{
 			case WebSocketState.Connecting:
@@ -200,7 +212,14 @@ export default function WebSocketStreamer(computerId)
 		}
 	};
 
-	Initialize();
+	///////////////////////////////////////////////////////////////
+	// Private Helper Methods /////////////////////////////////////
+	///////////////////////////////////////////////////////////////
+	let raiseStateChanged = function ()
+	{
+		if (socket && typeof self.onStateChanged === "function")
+			self.onStateChanged(socket.readyState);
+	};
 }
 
 ///////////////////////////////////////////////////////////////
@@ -254,7 +273,7 @@ const InputType =
 	, MouseButtonUp: 102 // Same as MouseButtonDown
 	, MouseWheel: 103 // Followed by two Int16 (mouse wheel delta X, Y)
 };
-const WebSocketState =
+export const WebSocketState =
 {
 	Connecting: 0,
 	Open: 1,

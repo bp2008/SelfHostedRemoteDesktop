@@ -17,6 +17,7 @@ namespace SelfHostedRemoteDesktop
 {
 	public class SHRDWebSocketServer
 	{
+		private const string myPath = "/SHRD";
 		WebSocketServer srv;
 		public SHRDWebSocketServer(int port)
 		{
@@ -28,8 +29,8 @@ namespace SelfHostedRemoteDesktop
 				else
 					Logger.Info(data.Message);
 			};
-			srv.AddWebSocketService<SHRDWebSocketBehavior>("/SHRD");
-			Logger.Info("WebSocket Service Added on port " + port + ": /SHRD");
+			srv.AddWebSocketService<SHRDWebSocketBehavior>(myPath);
+			Logger.Info("WebSocket Service Added on port " + port + ": " + myPath);
 		}
 
 		/// <summary>
@@ -50,8 +51,14 @@ namespace SelfHostedRemoteDesktop
 				TcpClient tcpc = (TcpClient)args.tcpc;
 				string connectionKey = (string)args.connectionKey;
 
-				byte[] buf = Encoding.UTF8.GetBytes("GET /WebSocketProxy" + connectionKey + " HTTP/1.1\r\n\r\n");
+				// Send to the Master Server an HTTP request that will be transforned into a web socket proxy.
+				// After the connection key, append the port number, then append this service's path (e.g. connectionKey + "/80/SHRD")
+				// This could have been hard-coded in the Master Server, but it seems more flexible if we send it here.
+				// For example, at some point in the future, a host service might want to customize or randomize its web socket listening endpoint.
+				Console.WriteLine("GET /WebSocketHostProxy/" + connectionKey + "/" + srv.Port + myPath + " HTTP/1.1");
+				byte[] buf = Encoding.UTF8.GetBytes("GET /WebSocketHostProxy/" + connectionKey + "/" + srv.Port + myPath + " HTTP/1.1\r\n\r\n");
 				tcpc.GetStream().Write(buf, 0, buf.Length);
+				Console.WriteLine("srv.AcceptTcpClient");
 				srv.AcceptTcpClient(tcpc);
 			}
 			else
@@ -81,6 +88,7 @@ namespace SelfHostedRemoteDesktop
 
 			public SHRDWebSocketBehavior() : base()
 			{
+				Console.WriteLine("SHRDWebSocketBehavior constructor");
 				streamerController = new StreamerController(ServiceWrapper.service_pid);
 				streamerController.OnClose += StreamerController_OnClose;
 			}
@@ -138,6 +146,7 @@ namespace SelfHostedRemoteDesktop
 				}
 
 				byte[] buf = e.RawData;
+				Console.WriteLine(ID + " OnMessage(" + buf.Length + ")");
 				if (buf.Length == 0)
 				{
 					CloseSocket();
@@ -145,6 +154,7 @@ namespace SelfHostedRemoteDesktop
 				}
 
 				Command cmd = (Command)buf[0];
+				Console.WriteLine(ID + " OnMessage: " + cmd);
 				try
 				{
 					switch (cmd)

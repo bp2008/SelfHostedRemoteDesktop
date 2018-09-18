@@ -46,9 +46,13 @@ namespace MasterServer
 				{
 					p.writeFailure("405 Method Not Allowed", "json API requests must use the POST method");
 				}
-				else if (p.requestedPage.StartsWith("WebSocketProxy/"))
+				else if (p.requestedPage.StartsWith("WebSocketClientProxy/"))
 				{
-					WebSocketProxy.HandleConnection(p);
+					WebSocketProxy.HandleWebSocketClientProxyRequest(p);
+				}
+				else if (p.requestedPage.StartsWith("WebSocketHostProxy/"))
+				{
+					WebSocketProxy.HandleWebSocketHostProxyResponse(p);
 				}
 				//else if (p.requestedPage == "windowskeycodes")
 				//{

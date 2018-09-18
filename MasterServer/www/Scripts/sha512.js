@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*
  A JavaScript implementation of the SHA family of hashes, as
  defined in FIPS PUB 180-4 and FIPS PUB 202, as well as the corresponding

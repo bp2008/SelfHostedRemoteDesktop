@@ -2,11 +2,11 @@
 
 export default function JpegFragmentedVideoPlayer()
 {
-	var self = this;
-	var submittedImageFragments = 0;
-	var processedImageFragments = 0;
-	var frameSequenceNumberCounter = 0;
-	var nextFrameSequenceNumber = 1;
+	let self = this;
+	let submittedImageFragments = 0;
+	let processedImageFragments = 0;
+	let frameSequenceNumberCounter = 0;
+	let nextFrameSequenceNumber = 1;
 	this.Play = function ()
 	{
 		webSocketStreamer.setStreamSettings();
@@ -18,8 +18,8 @@ export default function JpegFragmentedVideoPlayer()
 	};
 	this.ConnectionLost = function ()
 	{
-	}
-	thi; s.NewFrame = function (buf, myFrameSequenceNumber, tries)
+	};
+	this.NewFrame = function (buf, myFrameSequenceNumber, tries)
 	{
 		if (!myFrameSequenceNumber)
 			myFrameSequenceNumber = ++frameSequenceNumberCounter;
@@ -27,12 +27,12 @@ export default function JpegFragmentedVideoPlayer()
 			tries = 0;
 		try
 		{
-			if (nextFrameSequenceNumber != myFrameSequenceNumber)
+			if (nextFrameSequenceNumber !== myFrameSequenceNumber)
 			{
 				setTimeout(function () { self.NewFrame(buf, myFrameSequenceNumber, tries); }, 1);
 				return;
 			}
-			if (submittedImageFragments != processedImageFragments)
+			if (submittedImageFragments !== processedImageFragments)
 			{
 				if (tries > 250)
 				{
@@ -49,29 +49,29 @@ export default function JpegFragmentedVideoPlayer()
 			}
 
 			// Parse input
-			var offsetWrapper = { offset: 2 }; // Skip 1 byte for command and 1 byte for stream ID.
-			var moveFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
+			let offsetWrapper = { offset: 2 }; // Skip 1 byte for command and 1 byte for stream ID.
+			let moveFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
 			offsetWrapper.offset += 2;
-			var dirtyFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
+			let dirtyFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
 			offsetWrapper.offset += 2;
 			LogVerbose("      New Frame (moved: " + moveFragCount + ", dirty: " + dirtyFragCount + ")");
 
-			var moveList = new Array();
-			var dirtList = new Array();
-			for (var i = 0; i < moveFragCount; i++)
+			let moveList = new Array();
+			let dirtList = new Array();
+			for (let i = 0; i < moveFragCount; i++)
 				moveList.push(new MovedImageFragment(buf, offsetWrapper));
-			for (var i = 0; i < dirtyFragCount; i++)
+			for (let i = 0; i < dirtyFragCount; i++)
 				dirtList.push(new DirtyImageFragment(buf, offsetWrapper));
 
 			// Handle MoveImageFragments
-			for (var i = 0; i < moveList.length; i++)
+			for (let i = 0; i < moveList.length; i++)
 				MoveImageFragment(moveList[i].source, moveList[i].bounds);
 
 			// Handle DirtyImageFragments
-			for (var i = 0; i < dirtList.length; i++)
+			for (let i = 0; i < dirtList.length; i++)
 			{
-				var dirtyImageFragment = dirtList[i];
-				var tmpImg = document.createElement('img');
+				let dirtyImageFragment = dirtList[i];
+				let tmpImg = document.createElement('img');
 				tmpImg.bounds = dirtyImageFragment.bounds;
 				tmpImg.onload = function ()
 				{
@@ -99,24 +99,24 @@ export default function JpegFragmentedVideoPlayer()
 			console.log(ex);
 		}
 	};
-	var DrawImageFragment = function (tmpImg, regionRect)
+	let DrawImageFragment = function (tmpImg, regionRect)
 	{
-		var canvas = $("#myCanvas").get(0);
-		var requiredWidth = regionRect.X + regionRect.Width;
-		var requiredHeight = regionRect.Y + regionRect.Height;
+		let canvas = $("#myCanvas").get(0);
+		let requiredWidth = regionRect.X + regionRect.Width;
+		let requiredHeight = regionRect.Y + regionRect.Height;
 		if (requiredWidth > canvas.width || requiredHeight > canvas.height)
 		{
 			toaster.Info("Resizing canvas from " + canvas.width + "x" + canvas.height + " to " + requiredWidth + "x" + requiredHeight);
 			canvas.width = requiredWidth;
 			canvas.height = requiredHeight;
 		}
-		var context2d = canvas.getContext("2d");
+		let context2d = canvas.getContext("2d");
 		context2d.drawImage(tmpImg, regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
 	};
-	var MoveImageFragment = function (srcPoint, regionRect)
+	let MoveImageFragment = function (srcPoint, regionRect)
 	{
-		var canvas = $("#myCanvas").get(0);
-		var context2d = canvas.getContext("2d");
+		let canvas = $("#myCanvas").get(0);
+		let context2d = canvas.getContext("2d");
 		context2d.drawImage(canvas, srcPoint.X, srcPoint.Y, regionRect.Width, regionRect.Height, regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
 	};
 }
@@ -133,7 +133,7 @@ class DirtyImageFragment
 	constructor(buf, offsetWrapper)
 	{
 		this.bounds = new ImageRegionRectangle(buf, offsetWrapper);
-		var imgLength = new DataView(buf, offsetWrapper.offset, 4).getInt32(0, false);
+		let imgLength = new DataView(buf, offsetWrapper.offset, 4).getInt32(0, false);
 		offsetWrapper.offset += 4;
 		if (imgLength <= 0)
 		{
@@ -143,9 +143,9 @@ class DirtyImageFragment
 		else
 		{
 			LogVerbose("   buf.byteLength: " + buf.byteLength + ", offset: " + offsetWrapper.offset + ", imgLength: " + imgLength + ", calc length: " + (offsetWrapper.offset + imgLength));
-			var imgView = new Uint8Array(buf, offsetWrapper.offset, imgLength);
+			let imgView = new Uint8Array(buf, offsetWrapper.offset, imgLength);
 			offsetWrapper.offset += imgLength;
-			var imgBlob = new Blob([imgView], { type: 'image/jpeg' });
+			let imgBlob = new Blob([imgView], { type: 'image/jpeg' });
 			this.imgBlobURL = URL.createObjectURL(imgBlob);
 		}
 	}

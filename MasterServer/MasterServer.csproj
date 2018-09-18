@@ -80,8 +80,8 @@
     <Content Include="www\images\scrollL.png" />
     <Content Include="www\images\scrollR.png" />
     <Content Include="www\images\scrollU.png" />
-    <Content Include="www\scripts\remote\JpegFragmentedVideoPlayer.js" />
-    <Content Include="www\scripts\remote\DesktopVideoPlayer.js" />
+    <Content Include="www\scripts\remote\JpegFragmentedVideoRenderer.js" />
+    <Content Include="www\scripts\remote\DesktopVideoRenderer.js" />
     <Content Include="www\scripts\remote\objects\DesktopScreen.js" />
     <Content Include="www\scripts\remote\objects\DesktopInfo.js" />
     <Content Include="www\scripts\remote\WebSocketStreamer.js" />

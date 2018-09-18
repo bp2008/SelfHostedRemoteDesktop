@@ -27,7 +27,8 @@
 		data: function ()
 		{
 			return {
-				computer: { Name: "Loading…" }
+				computer: { Name: "Loading…" },
+				loading: false
 			};
 		},
 		computed: {
@@ -51,6 +52,7 @@
 		methods: {
 			fetchData()
 			{
+				this.loading = true;
 				this.$store.dispatch("getClientComputerInfo", parseInt(this.$route.params.computerId)).then(c =>
 				{
 					this.computer = c;
@@ -58,6 +60,10 @@
 				).catch(err =>
 				{
 					this.computer = { Name: err.message };
+				}
+				).finally(() =>
+				{
+					this.loading = false;
 				});
 			}
 		},

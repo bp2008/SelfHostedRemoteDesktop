@@ -115,7 +115,7 @@
 				return;
 			isOpen = false;
 
-			if (typeof self.settings.onClosing == "function" && !suppressCallback)
+			if (typeof self.settings.onClosing === "function" && !suppressCallback)
 				if (self.settings.onClosing())
 					return false;
 
@@ -233,7 +233,7 @@
 				}
 				, fix: function (e)
 				{
-					if (typeof e.pageX == "undefined")
+					if (typeof e.pageX === "undefined")
 					{
 						if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length > 0)
 						{

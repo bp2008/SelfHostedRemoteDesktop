@@ -104,30 +104,29 @@ export function ComputeSHA512Hex(hexIn)
 ///////////////////////////////////////////////////////////////
 export function TranslateWebSocketCloseCode(code)
 {
-	return WebSocketCloseCode.Translate();
+	return WebSocketCloseCode.Translate(code);
 }
 var WebSocketCloseCode = new (function ()
 {
-	var self = this;
 	this.Translate = function (code)
 	{
 		if (code >= 0 && code <= 999)
-			return ["", "Reserved and not used."];
+			return ["Unknown code", "Error code is reserved and not used."];
 		else if (code >= 1000 && code <= 1015)
 			return [ws_code_map_name[code], ws_code_map_desc[code]];
 		else if (code >= 1016 && code <= 1999)
-			return ["", "Reserved for future use by the WebSocket standard."];
+			return ["Unknown code", "Error code is reserved for future use by the WebSocket standard."];
 		else if (code >= 2000 && code <= 2999)
-			return ["", "Reserved for use by WebSocket extensions."];
+			return ["Unknown code", "Error code is reserved for use by WebSocket extensions."];
 		else if (code >= 3000 && code <= 3999)
-			return ["", "Available for use by libraries and frameworks. May not be used by applications. Available for registration at the IANA via first-come, first-serve."];
+			return ["Unknown code", "Error code is available for use by libraries and frameworks. May not be used by applications. Available for registration at the IANA via first-come, first-serve."];
 		else if (code >= 4000 && code <= 4999)
-			return ["", "Available for use by applications."];
+			return ["Unknown code", "Error code is available for use by applications."];
 		else
-			return ["unknown", "unknown"];
-	}
-	var ws_code_map_name = {};
-	var ws_code_map_desc = {};
+			return ["Unknown code", "Unknown code"];
+	};
+	let ws_code_map_name = {};
+	let ws_code_map_desc = {};
 	ws_code_map_name[1000] = "CLOSE_NORMAL";
 	ws_code_map_desc[1000] = "Normal closure; the connection successfully completed whatever purpose for which it was created.";
 	ws_code_map_name[1001] = "CLOSE_GOING_AWAY";

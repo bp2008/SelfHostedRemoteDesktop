@@ -1,40 +1,10 @@
 ﻿import * as Util from 'appRoot/scripts/Util.js';
 
-export default function InputCatcher()
+export default function InputCatcher(canvas)
 {
 	var self = this;
 	var initialized = false;
 	var $videoFrame = $("#videoFrame");
-	var $videoCanvas = $("#myCanvas");
-
-	var MouseButton =
-	{
-		Left: 0
-		, Right: 1
-		, Middle: 2
-		, Back: 3
-		, Forward: 4
-		, None: 255
-	};
-	var ModifierKeys =
-	{
-		None: 0
-		, LeftCtrl: 1
-		, RightCtrl: 1 << 1
-		, LeftShift: 1 << 2
-		, RightShift: 1 << 3
-		, LeftAlt: 1 << 4
-		, RightAlt: 1 << 5
-		, LeftWindows: 1 << 6 // Currently Disabled as web browsers don't report this modifier state
-		, RightWindows: 1 << 7 // ^^
-		, CapsLock: 1 << 8 // ^^
-		, NumLock: 1 << 9 // ^^
-		, ScrollLock: 1 << 10 // ^^
-	};
-	ModifierKeys.Ctrl = ModifierKeys.LeftCtrl | ModifierKeys.RightCtrl;
-	ModifierKeys.Shift = ModifierKeys.LeftShift | ModifierKeys.RightShift;
-	ModifierKeys.Alt = ModifierKeys.LeftAlt | ModifierKeys.RightAlt;
-	ModifierKeys.Windows = ModifierKeys.LeftWindows | ModifierKeys.RightWindows;
 
 	var Initialize = function ()
 	{
@@ -42,16 +12,28 @@ export default function InputCatcher()
 			return;
 		initialized = true;
 
-		var $document = $(document);
-		$document.on('keydown', onKeyDown);
-		$document.on('keyup', onKeyUp);
-		$document.on('keypress', swallowEvent);
-		$videoCanvas.on('mousemove', onMouseMove);
-		$videoCanvas.on('mousedown', onMouseDown);
-		$videoCanvas.on('mouseup', onMouseUp);
-		$videoCanvas.on('click', swallowEvent);
-		$videoCanvas.on('contextmenu', swallowEvent);
-		$videoCanvas.on('mousewheel', onMouseWheel);
+		document.addEventListener('keydown', onKeyDown);
+		document.addEventListener('keyup', onKeyUp);
+		document.addEventListener('keypress', swallowEvent);
+		canvas.addEventListener('mousemove', onMouseMove);
+		canvas.addEventListener('mousedown', onMouseDown);
+		canvas.addEventListener('mouseup', onMouseUp);
+		canvas.addEventListener('click', swallowEvent);
+		canvas.addEventListener('contextmenu', swallowEvent);
+		canvas.addEventListener('mousewheel', onMouseWheel);
+	};
+	this.Dispose = function ()
+	{
+
+		document.removeEventListener('keydown', onKeyDown);
+		document.removeEventListener('keyup', onKeyUp);
+		document.removeEventListener('keypress', swallowEvent);
+		canvas.removeEventListener('mousemove', onMouseMove);
+		canvas.removeEventListener('mousedown', onMouseDown);
+		canvas.removeEventListener('mouseup', onMouseUp);
+		canvas.removeEventListener('click', swallowEvent);
+		canvas.removeEventListener('contextmenu', swallowEvent);
+		canvas.removeEventListener('mousewheel', onMouseWheel);
 	};
 	var onKeyDown = function (e)
 	{
@@ -139,3 +121,32 @@ export default function InputCatcher()
 
 	Initialize();
 }
+
+const MouseButton =
+{
+	Left: 0
+	, Right: 1
+	, Middle: 2
+	, Back: 3
+	, Forward: 4
+	, None: 255
+};
+const ModifierKeys =
+{
+	None: 0
+	, LeftCtrl: 1
+	, RightCtrl: 1 << 1
+	, LeftShift: 1 << 2
+	, RightShift: 1 << 3
+	, LeftAlt: 1 << 4
+	, RightAlt: 1 << 5
+	, LeftWindows: 1 << 6 // Currently Disabled as web browsers don't report this modifier state
+	, RightWindows: 1 << 7 // ^^
+	, CapsLock: 1 << 8 // ^^
+	, NumLock: 1 << 9 // ^^
+	, ScrollLock: 1 << 10 // ^^
+};
+ModifierKeys.Ctrl = ModifierKeys.LeftCtrl | ModifierKeys.RightCtrl;
+ModifierKeys.Shift = ModifierKeys.LeftShift | ModifierKeys.RightShift;
+ModifierKeys.Alt = ModifierKeys.LeftAlt | ModifierKeys.RightAlt;
+ModifierKeys.Windows = ModifierKeys.LeftWindows | ModifierKeys.RightWindows;

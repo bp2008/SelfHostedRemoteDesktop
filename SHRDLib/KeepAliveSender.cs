@@ -42,13 +42,13 @@ namespace SHRDLib
 			this.keepaliveIntervalMs = keepaliveIntervalMs;
 			nextKeepaliveMs = keepaliveIntervalMs;
 
+			keepAliveTimer = new Stopwatch();
+			keepAliveTimer.Start();
+
 			keepAliveThread = new Thread(KeepAliveLoop);
 			keepAliveThread.IsBackground = true;
 			keepAliveThread.Name = threadName;
 			keepAliveThread.Start();
-
-			keepAliveTimer = new Stopwatch();
-			keepAliveTimer.Start();
 		}
 		#region IDisposable Support
 		private bool disposedValue = false;

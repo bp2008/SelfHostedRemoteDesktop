@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -19,40 +20,23 @@ namespace MasterServer
 		private static ConcurrentDictionary<string, WaitingClient> pendingProxyConnections = new ConcurrentDictionary<string, WaitingClient>();
 
 		/// <summary>
-		/// Handles a request to the "WebSocketProxy/" endpoint.
-		/// </summary>
-		/// <param name="p">The HttpProcessor handling the request.</param>
-		public static void HandleConnection(HttpProcessor p)
-		{
-			int segmentCount = p.request_url.Segments.Length;
-			if (segmentCount == 3) // e.g. /WebSocketProxy/1/SESSION
-				HandleWebSocketProxyRequest(p);
-			else if (segmentCount == 2) // e.g. /WebSocketProxy/PROXYKEY
-				HandleWebSocketProxyResponse(p);
-			else
-				p.writeFailure("400 Bad Request");
-		}
-		/// <summary>
 		/// Handles a request from a Web Client who is requesting a proxied web socket connection to a specific Host Service.
 		/// </summary>
 		/// <param name="p">The HttpProcessor handling the request.</param>
-		private static void HandleWebSocketProxyRequest(HttpProcessor p)
+		public static void HandleWebSocketClientProxyRequest(HttpProcessor p)
 		{
-			string[] parts = p.request_url.Segments;
-			#region Validate Input
-			if (parts.Length != 3)
+			#region Perform Validation
+			// Path format: "/WebSocketClientProxy/1/SESSION". More path segments, if given, are ignored (the last path segment is typically used as a display name in browser developer tools).
+			string[] parts = p.request_url.LocalPath.Split('/').Skip(1).ToArray();
+			int computerId; // The computer ID the client wishes to connect to.
+			if (parts.Length < 3 || parts[0] != "WebSocketClientProxy" || !int.TryParse(parts[1], out computerId))
 			{
 				p.writeFailure("400 Bad Request");
 				return;
 			}
-			if (!int.TryParse(parts[1], out int computerId))
-			{
-				p.writeFailure("400 Bad Request");
-				return;
-			}
+			string sid = parts[2]; // The session ID of the client's session.
 			#endregion
 			#region Verify Permission
-			string sid = parts[2];
 			ServerSession session = SessionManager.GetSession(sid);
 			if (session == null || session.Expired)
 			{
@@ -142,10 +126,13 @@ namespace MasterServer
 
 				// Copy data from Host Service to Web Client
 				p.responseWritten = true;
+				p.tcpClient.NoDelay = true;
+				Console.WriteLine("Client Proxy Initialized");
 				CopyStreamUntilClosed(hostStream, p.tcpStream);
 			}
 			finally
 			{
+				// If anything went wrong initializing the proxy connection, we might not have cleaned up yet.
 				if (proxyKey != null)
 					pendingProxyConnections.TryRemove(proxyKey, out WaitingClient ignored);
 
@@ -156,30 +143,49 @@ namespace MasterServer
 		/// Handles a response from a Host Service who is responding to a web socket proxy request.
 		/// </summary>
 		/// <param name="p">The HttpProcessor handling the request.</param>
-		private static void HandleWebSocketProxyResponse(HttpProcessor p)
+		public static void HandleWebSocketHostProxyResponse(HttpProcessor p)
 		{
-			string[] parts = p.request_url.Segments;
-			// Validate Input
-			if (parts.Length != 2)
+			#region Perform Validation
+			// Path format: "/WebSocketHostProxy/PROXYKEY/SHRD" where "/SHRD" is the path expected by the host service's web socket server and may be any arbitrary path.
+			string[] parts = p.request_url.LocalPath.Split('/').Skip(1).ToArray();
+			int wsPort; // The port number the remote host service's web socket server believes that it listens on (needed for validation in some web socket servers).
+			if (parts.Length < 4 || parts[0] != "WebSocketHostProxy" || !int.TryParse(parts[2], out wsPort))
 			{
 				p.writeFailure("400 Bad Request");
 				return;
 			}
+			string proxyKey = parts[1]; // A proxy key which serves two purposes: 1) identifying the web socket connection request and 2) authenticating the host.
+			string expectedPath = "/" + parts[3]; // The path expected by the host service's web socket server, because passing it along this way is better than hard coding it right here.
+			#endregion
 
 			// Permission is implicit because proxyKey is a 64-character random string that was shared over a previously-authenticated connection.
-			string proxyKey = parts[1];
 			if (!pendingProxyConnections.TryGetValue(proxyKey, out WaitingClient waitingClient))
 			{
 				p.writeFailure("404 Not Found");
 				return;
 			}
 
+			// Reproduce the initial request that we've already read from the client's socket, with modifications.
+			p.responseWritten = true;
+			p.tcpClient.NoDelay = true;
+			p.outputStream.WriteLineRN(waitingClient.clientProcessor.http_method + " " + expectedPath + " " + waitingClient.clientProcessor.http_protocol_versionstring);
+			p.outputStream.WriteLineRN("Host: " + p.RemoteIPAddressStr + ":" + wsPort); // Produce a host header
+			foreach (KeyValuePair<string, string> header in waitingClient.clientProcessor.httpHeadersRaw)
+			{
+				string keyLower = header.Key.ToLower();
+				if (keyLower != "host")
+					p.outputStream.WriteLineRN(header.Key + ": " + header.Value);
+			}
+			p.outputStream.WriteLineRN("");
+			p.outputStream.Flush();
+
 			// Save a reference to the Web Client's network stream and notify the Web Client's thread that we're ready to begin proxying data.
 			Stream clientStream = waitingClient.clientProcessor.tcpStream;
+			waitingClient.hostProcessor = p;
 			waitingClient.clientWaitHandle.Set();
 
 			// Copy data from Web Client to Host Service
-			p.responseWritten = true;
+			Console.WriteLine("Host Proxy Initialized");
 			CopyStreamUntilClosed(clientStream, p.tcpStream);
 		}
 		private static void CopyStreamUntilClosed(Stream source, Stream target)

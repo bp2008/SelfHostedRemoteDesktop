@@ -4,7 +4,10 @@
 			<div class="loadingCompName" v-if="computer && computer.Name">{{computer.Name}}</div>
 			<ScaleLoader />
 		</div>
-		<div class="loadingError" v-else-if="loadingError">An error occurred during loading: {{loadingError}}</div>
+		<div class="loadingError" v-else-if="loadingError">
+			An error occurred during loading:<br />
+			<span class="errMsg">{{loadingError}}</span>
+		</div>
 		<div class="videoFrame" v-else-if="computer && host">
 			<canvas ref="myCanvas" class="videoFrameCanvas"></canvas>
 			<div class="notConnected" v-if="host.connectionState != ConnectionState.Connected">
@@ -19,7 +22,7 @@
 </template>
 
 <script>
-	import HostConnection from 'appRoot/scripts/HostConnection.js';
+	import HostConnection from 'appRoot/scripts/remote/HostConnection.js';
 
 	let ConnectionState = { Disconnected: 0, Authenticating: 1, Connected: 2 };
 
@@ -42,16 +45,21 @@
 				this.loading = true;
 				this.loadingError = null;
 				this.computer = { Name: "Loading" };
-				this.host = new HostConnection(c.ID, this.$store.getters.sid);
-				this.host.Connect();
 				this.$store.dispatch("getClientComputerInfo", parseInt(this.$route.params.computerId)).then(c =>
 				{
 					this.computer = c;
-					this.loading = false;
+					let args = {
+						computerId: c.ID,
+						sid: this.$store.getters.sid,
+						canvas: this.$refs.myCanvas
+					};
+					this.host = new HostConnection(args);
+					this.host.Connect();
 				}
 				).catch(err =>
 				{
-					this.loadingError = err.message;
+					this.loadingError = err.stack;
+					console.error(err);
 					this.loading = false;
 				});
 			}
@@ -69,6 +77,11 @@
 		},
 		watch: {
 			'$route': 'fetchData' // called if the route changes
+		},
+		beforeDestroy()
+		{
+			if (this.host)
+				this.host.Dispose();
 		}
 	};
 
@@ -122,6 +135,11 @@
 		background-color: #FFFFFF;
 		color: #FF0000;
 		font-size: 12pt;
+	}
+
+	.errMsg
+	{
+		white-space: pre-wrap;
 	}
 
 	.videoFrame
