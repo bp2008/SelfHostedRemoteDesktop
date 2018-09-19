@@ -3,19 +3,21 @@
 		<div class="loading" v-if="loading">
 			<div class="loadingCompName" v-if="computer && computer.Name">{{computer.Name}}</div>
 			<ScaleLoader />
+			<div>Loading…</div>
 		</div>
 		<div class="loadingError" v-else-if="loadingError">
 			An error occurred during loading:<br />
 			<span class="errMsg">{{loadingError}}</span>
 		</div>
-		<div class="videoFrame" v-else-if="computer && host">
+		<div class="videoFrame" v-show="computer && !loading">
 			<canvas ref="myCanvas" class="videoFrameCanvas"></canvas>
-			<div class="notConnected" v-if="host.connectionState != ConnectionState.Connected">
+			<div class="notConnected" v-if="isConnecting">
 				<div class="loadingCompName" v-if="computer && computer.Name">{{computer.Name}}</div>
 				<ScaleLoader />
+				<div>Connecting…</div>
 			</div>
 		</div>
-		<div class="loadingError" v-else>
+		<div class="loadingError" v-if="!computer">
 			An error occurred during loading: computer object is null
 		</div>
 	</div>
@@ -23,6 +25,7 @@
 
 <script>
 	import HostConnection from 'appRoot/scripts/remote/HostConnection.js';
+	import { WebSocketState } from 'appRoot/scripts/remote/WebSocketStreamer.js';
 
 	let ConnectionState = { Disconnected: 0, Authenticating: 1, Connected: 2 };
 
@@ -34,10 +37,19 @@
 				computer: null,
 				loadingError: null,
 				loading: false,
-				host: null // Host Connection Handle
+				host: null, // Host Connection Handle
+				socketState: WebSocketState.Closed
 			};
 		},
 		computed: {
+			isConnecting()
+			{
+				return this.socketState === WebSocketState.Connecting;
+			},
+			isConnected()
+			{
+				return this.socketState === WebSocketState.Open;
+			}
 		},
 		methods: {
 			fetchData()
@@ -53,18 +65,28 @@
 						sid: this.$store.getters.sid,
 						canvas: this.$refs.myCanvas
 					};
+					console.log(this);
 					this.host = new HostConnection(args);
+					this.host.onSocketStateChanged = this.onSocketStateChanged;
 					this.host.Connect();
+					this.connecting = true;
 				}
 				).catch(err =>
 				{
 					this.loadingError = err.stack;
 					console.error(err);
+				}
+				).finally(() =>
+				{
 					this.loading = false;
 				});
+			},
+			onSocketStateChanged(state)
+			{
+				this.socketState = state;
 			}
 		},
-		mounted()
+		created()
 		{
 			let compatibilityTestResult = CompatibilityTest();
 			if (compatibilityTestResult)
@@ -108,7 +130,8 @@
 		background-color: #000000;
 	}
 
-	.loading
+	.loading,
+	.notConnected
 	{
 		width: 100%;
 		height: 100%;

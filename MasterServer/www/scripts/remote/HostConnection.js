@@ -8,15 +8,24 @@ export default function HostConnection(args)
 {
 	let self = this;
 	let clientSettings = new GetNamespaceLocalStorage(args.computerId.toString());
-	let renderer = new DesktopVideoRenderer();
-	//let inputCatcher = new InputCatcher(args.canvas);
-	let webSocketStreamer = new WebSocketStreamer(args.computerId, renderer);
-	webSocketStreamer.onFrameReceived = onFrameReceived;
-	webSocketStreamer.onStateChanged = onSocketStateChanged;
+	let renderer = null;
+	let inputCatcher = null;
+	let webSocketStreamer = null;
+
+	this.onSocketStateChanged = null;
+
+	let Initialize = function ()
+	{
+		renderer = new DesktopVideoRenderer(args.canvas);
+		//inputCatcher = new InputCatcher(args.canvas);
+		webSocketStreamer = new WebSocketStreamer(args.computerId, renderer);
+		webSocketStreamer.onFrameReceived = onFrameReceived;
+		webSocketStreamer.onStateChanged = onSocketStateChanged;
+	};
 
 	this.IsConnected = function ()
 	{
-		return webSocketStreamer.connected;
+		return webSocketStreamer.getReadyState() === WebSocketState.Open;
 	};
 
 	this.Connect = function ()
@@ -31,7 +40,7 @@ export default function HostConnection(args)
 	this.Dispose = function ()
 	{
 		self.Disconnect();
-		inputCatcher.Dispose();
+		//inputCatcher.Dispose();
 	};
 	let onSocketStateChanged = function (state)
 	{
@@ -54,10 +63,16 @@ export default function HostConnection(args)
 		}
 		else
 			console.error("Unknown web socket state: " + state);
-		webSocketStreamer.startStreaming();
+
+		if (typeof self.onSocketStateChanged === "function")
+			self.onSocketStateChanged(state);
 	};
 	let onFrameReceived = function (frame)
 	{
+		console.log("HostConnection: frame received", frame.byteLength);
 		renderer.NewFrame(frame);
-	}
+	};
+
+	// The Initialize call should be at the end of the HostConnection function so that everything else is defined.
+	Initialize();
 }

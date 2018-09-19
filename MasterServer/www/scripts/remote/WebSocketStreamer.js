@@ -71,8 +71,8 @@ export function WebSocketStreamer(computerId)
 					console.info("dropped frame from stream " + streamId + " because current stream is " + currentStreamId);
 					break;
 				}
-				if (typeof onFrameReceived === "function")
-					onFrameReceived(data);
+				if (typeof self.onFrameReceived === "function")
+					self.onFrameReceived(data);
 				//mainMenu.bytesThisSecond += data.byteLength;
 				acknowledgeFrame(streamId);
 				break;
@@ -82,6 +82,7 @@ export function WebSocketStreamer(computerId)
 			case Command.GetDesktopInfo:
 				toaster.Info("GetDesktopInfo message received from server.");
 				self.currentDesktopInfo = new DesktopInfo(data, { offset: 1 });
+				console.log("GetDesktopInfo", self.currentDesktopInfo);
 				break;
 			case Command.Error_SyntaxError:
 				toaster.Warning("Error_SyntaxError message received from server");
@@ -212,6 +213,10 @@ export function WebSocketStreamer(computerId)
 		}
 	};
 
+	///////////////////////////////////////////////////////////////
+	// Simple Public Getters //////////////////////////////////////
+	///////////////////////////////////////////////////////////////
+	this.getReadyState = () => socket ? socket.readyState : WebSocketState.Closed;
 	///////////////////////////////////////////////////////////////
 	// Private Helper Methods /////////////////////////////////////
 	///////////////////////////////////////////////////////////////

@@ -213,85 +213,85 @@ var SHRD_CustomEvent =
 ///////////////////////////////////////////////////////////////
 // Binary Reading /////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
-function ReadByte(buf, offsetWrapper)
+export function ReadByte(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 1).getUint8(0);
 	offsetWrapper.offset++;
 	return v;
 }
-function ReadUInt16(buf, offsetWrapper)
+export function ReadUInt16(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).getUint16(0, false);
 	offsetWrapper.offset += 2;
 	return v;
 }
-function ReadUInt16LE(buf, offsetWrapper)
+export function ReadUInt16LE(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).getUint16(0, true);
 	offsetWrapper.offset += 2;
 	return v;
 }
-function ReadInt16(buf, offsetWrapper)
+export function ReadInt16(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).getInt16(0, false);
 	offsetWrapper.offset += 2;
 	return v;
 }
-function ReadInt16LE(buf, offsetWrapper)
+export function ReadInt16LE(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).getInt16(0, true);
 	offsetWrapper.offset += 2;
 	return v;
 }
-function ReadUInt32(buf, offsetWrapper)
+export function ReadUInt32(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).getUint32(0, false);
 	offsetWrapper.offset += 4;
 	return v;
 }
-function ReadUInt32LE(buf, offsetWrapper)
+export function ReadUInt32LE(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).getUint32(0, true);
 	offsetWrapper.offset += 4;
 	return v;
 }
-function ReadInt32(buf, offsetWrapper)
+export function ReadInt32(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).getInt32(0, false);
 	offsetWrapper.offset += 4;
 	return v;
 }
-function ReadInt32LE(buf, offsetWrapper)
+export function ReadInt32LE(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).getInt32(0, true);
 	offsetWrapper.offset += 4;
 	return v;
 }
-function ReadFloat(buf, offsetWrapper)
+export function ReadFloat(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).getFloat32(0, false);
 	offsetWrapper.offset += 4;
 	return v;
 }
-function ReadFloatLE(buf, offsetWrapper)
+export function ReadFloatLE(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).getFloat32(0, true);
 	offsetWrapper.offset += 4;
 	return v;
 }
-function ReadDouble(buf, offsetWrapper)
+export function ReadDouble(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 8).getFloat64(0, false);
 	offsetWrapper.offset += 8;
 	return v;
 }
-function ReadDoubleLE(buf, offsetWrapper)
+export function ReadDoubleLE(buf, offsetWrapper)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 8).getFloat64(0, true);
 	offsetWrapper.offset += 8;
 	return v;
 }
-function ReadUInt64(buf, offsetWrapper)
+export function ReadUInt64(buf, offsetWrapper)
 {
 	// This is a hack because JavaScript only has 64 bit doubles with 53 bit int precision.
 	// If a number were to be higher than 2 ^ 53, this method would return the wrong value.
@@ -299,7 +299,7 @@ function ReadUInt64(buf, offsetWrapper)
 	var leastSignificant = ReadUInt32(buf.buffer || buf, offsetWrapper);
 	return mostSignificant + leastSignificant;
 }
-function ReadUInt64LE(buf, offsetWrapper)
+export function ReadUInt64LE(buf, offsetWrapper)
 {
 	// This is a hack because JavaScript only has 64 bit doubles with 53 bit int precision.
 	// If a number were to be higher than 2 ^ 53, this method would return the wrong value.
@@ -307,7 +307,7 @@ function ReadUInt64LE(buf, offsetWrapper)
 	var mostSignificant = (ReadUInt32LE(buf.buffer || buf, offsetWrapper) & 0x001FFFFF) * 4294967296;
 	return mostSignificant + leastSignificant;
 }
-function ReadUTF8(buf, offsetWrapper, byteLength)
+export function ReadUTF8(buf, offsetWrapper, byteLength)
 {
 	var v = Utf8ArrayToStr(new Uint8Array(buf.buffer || buf, offsetWrapper.offset, byteLength));
 	offsetWrapper.offset += byteLength;
@@ -316,67 +316,67 @@ function ReadUTF8(buf, offsetWrapper, byteLength)
 ///////////////////////////////////////////////////////////////
 // Binary Writing /////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
-function WriteByte(buf, offsetWrapper, val)
+export function WriteByte(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 1).setUint8(0, val);
 	offsetWrapper.offset++;
 }
-function WriteUInt16(buf, offsetWrapper, val)
+export function WriteUInt16(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).setUint16(0, val, false);
 	offsetWrapper.offset += 2;
 }
-function WriteUInt16LE(buf, offsetWrapper, val)
+export function WriteUInt16LE(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).setUint16(0, val, true);
 	offsetWrapper.offset += 2;
 }
-function WriteInt16(buf, offsetWrapper, val)
+export function WriteInt16(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).setInt16(0, val, false);
 	offsetWrapper.offset += 2;
 }
-function WriteInt16LE(buf, offsetWrapper, val)
+export function WriteInt16LE(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 2).setInt16(0, val, true);
 	offsetWrapper.offset += 2;
 }
-function WriteUInt32(buf, offsetWrapper, val)
+export function WriteUInt32(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).setUint32(0, val, false);
 	offsetWrapper.offset += 4;
 }
-function WriteUInt32LE(buf, offsetWrapper, val)
+export function WriteUInt32LE(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).setUint32(0, val, true);
 	offsetWrapper.offset += 4;
 }
-function WriteInt32(buf, offsetWrapper, val)
+export function WriteInt32(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).setInt32(0, val, false);
 	offsetWrapper.offset += 4;
 }
-function WriteInt32LE(buf, offsetWrapper, val)
+export function WriteInt32LE(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).setInt32(0, val, true);
 	offsetWrapper.offset += 4;
 }
-function WriteFloat(buf, offsetWrapper, val)
+export function WriteFloat(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).setFloat32(0, val, false);
 	offsetWrapper.offset += 4;
 }
-function WriteFloatLE(buf, offsetWrapper, val)
+export function WriteFloatLE(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 4).setFloat32(0, val, true);
 	offsetWrapper.offset += 4;
 }
-function WriteDouble(buf, offsetWrapper, val)
+export function WriteDouble(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 8).setFloat64(0, val, false);
 	offsetWrapper.offset += 8;
 }
-function WriteDoubleLE(buf, offsetWrapper, val)
+export function WriteDoubleLE(buf, offsetWrapper, val)
 {
 	var v = new DataView(buf.buffer || buf, offsetWrapper.offset, 8).setFloat64(0, val, true);
 	offsetWrapper.offset += 8;

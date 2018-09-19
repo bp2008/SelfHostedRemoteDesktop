@@ -49,6 +49,7 @@ namespace SelfHostedRemoteDesktop
 			{
 				dynamic args = (dynamic)ar.AsyncState;
 				TcpClient tcpc = (TcpClient)args.tcpc;
+				tcpc.NoDelay = true;
 				string connectionKey = (string)args.connectionKey;
 
 				// Send to the Master Server an HTTP request that will be transforned into a web socket proxy.

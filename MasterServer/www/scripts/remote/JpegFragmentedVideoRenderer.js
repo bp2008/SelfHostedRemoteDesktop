@@ -1,6 +1,6 @@
 ﻿import * as Util from 'appRoot/scripts/Util.js';
 
-export default function JpegFragmentedVideoPlayer()
+export default function JpegFragmentedVideoPlayer(canvas)
 {
 	let self = this;
 	let submittedImageFragments = 0;
@@ -50,10 +50,8 @@ export default function JpegFragmentedVideoPlayer()
 
 			// Parse input
 			let offsetWrapper = { offset: 2 }; // Skip 1 byte for command and 1 byte for stream ID.
-			let moveFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
-			offsetWrapper.offset += 2;
-			let dirtyFragCount = new DataView(buf, offsetWrapper.offset, 2).getUint16(0, false);
-			offsetWrapper.offset += 2;
+			let moveFragCount = Util.ReadUInt16(buf, offsetWrapper);
+			let dirtyFragCount = Util.ReadUInt16(buf, offsetWrapper);
 			LogVerbose("      New Frame (moved: " + moveFragCount + ", dirty: " + dirtyFragCount + ")");
 
 			let moveList = new Array();
@@ -78,44 +76,49 @@ export default function JpegFragmentedVideoPlayer()
 					processedImageFragments++;
 					URL.revokeObjectURL(this.src);
 					DrawImageFragment(this, this.bounds);
-				}
+				};
 				tmpImg.onerror = function ()
 				{
 					processedImageFragments++;
 					URL.revokeObjectURL(this.src);
 					toaster.Error("Failed to decode image fragment");
-				}
+				};
 				submittedImageFragments++;
 				tmpImg.src = dirtyImageFragment.imgBlobURL;
 			}
 			nextFrameSequenceNumber++;
-			mainMenu.frameCounter++;
-			mainMenu.framesThisSecond++;
-			$("#frames").html(mainMenu.frameCounter);
-			$("#kbps").html(buf);
+			//mainMenu.frameCounter++;
+			//mainMenu.framesThisSecond++;
+			//$("#frames").html(mainMenu.frameCounter);
+			//$("#kbps").html(buf);
 		}
 		catch (ex)
 		{
-			console.log(ex);
+			console.error(ex);
 		}
 	};
 	let DrawImageFragment = function (tmpImg, regionRect)
 	{
-		let canvas = $("#myCanvas").get(0);
-		let requiredWidth = regionRect.X + regionRect.Width;
-		let requiredHeight = regionRect.Y + regionRect.Height;
-		if (requiredWidth > canvas.width || requiredHeight > canvas.height)
+		try
 		{
-			toaster.Info("Resizing canvas from " + canvas.width + "x" + canvas.height + " to " + requiredWidth + "x" + requiredHeight);
-			canvas.width = requiredWidth;
-			canvas.height = requiredHeight;
+			let requiredWidth = regionRect.X + regionRect.Width;
+			let requiredHeight = regionRect.Y + regionRect.Height;
+			if (requiredWidth > canvas.width || requiredHeight > canvas.height)
+			{
+				toaster.Info("Resizing canvas from " + canvas.width + "x" + canvas.height + " to " + requiredWidth + "x" + requiredHeight);
+				canvas.width = requiredWidth;
+				canvas.height = requiredHeight;
+			}
+			let context2d = canvas.getContext("2d");
+			context2d.drawImage(tmpImg, regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
 		}
-		let context2d = canvas.getContext("2d");
-		context2d.drawImage(tmpImg, regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
+		catch (ex)
+		{
+			console.error(ex);
+		}
 	};
 	let MoveImageFragment = function (srcPoint, regionRect)
 	{
-		let canvas = $("#myCanvas").get(0);
 		let context2d = canvas.getContext("2d");
 		context2d.drawImage(canvas, srcPoint.X, srcPoint.Y, regionRect.Width, regionRect.Height, regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
 	};
@@ -133,8 +136,7 @@ class DirtyImageFragment
 	constructor(buf, offsetWrapper)
 	{
 		this.bounds = new ImageRegionRectangle(buf, offsetWrapper);
-		let imgLength = new DataView(buf, offsetWrapper.offset, 4).getInt32(0, false);
-		offsetWrapper.offset += 4;
+		let imgLength = Util.ReadInt32(buf, offsetWrapper);
 		if (imgLength <= 0)
 		{
 			this.imgBlobURL = "";
@@ -154,17 +156,23 @@ class ImageSourcePoint
 {
 	constructor(buf, offsetWrapper)
 	{
-		this.X = ReadInt16(buf, offsetWrapper);
-		this.Y = ReadInt16(buf, offsetWrapper);
+		this.X = Util.ReadInt16(buf, offsetWrapper);
+		this.Y = Util.ReadInt16(buf, offsetWrapper);
 	}
 }
 class ImageRegionRectangle
 {
 	constructor(buf, offsetWrapper)
 	{
-		this.X = ReadInt16(buf, offsetWrapper);
-		this.Y = ReadInt16(buf, offsetWrapper);
-		this.Width = ReadUInt16(buf, offsetWrapper);
-		this.Height = ReadUInt16(buf, offsetWrapper);
+		this.X = Util.ReadInt16(buf, offsetWrapper);
+		this.Y = Util.ReadInt16(buf, offsetWrapper);
+		this.Width = Util.ReadUInt16(buf, offsetWrapper);
+		this.Height = Util.ReadUInt16(buf, offsetWrapper);
 	}
+}
+var logVerbose = false;
+function LogVerbose(msg)
+{
+	if (logVerbose)
+		console.info(msg);
 }

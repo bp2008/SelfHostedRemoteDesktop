@@ -1,10 +1,10 @@
 ﻿import * as Util from 'appRoot/scripts/Util.js';
 import JpegFragmentedVideoRenderer from 'appRoot/scripts/remote/JpegFragmentedVideoRenderer.js';
 
-export default function DesktopVideoRenderer()
+export default function DesktopVideoRenderer(canvas)
 {
 	var self = this;
-	var renderModule = new JpegFragmentedVideoRenderer();
+	var renderModule = new JpegFragmentedVideoRenderer(canvas);
 	//this.VisibilityChanged = function (isVisible)
 	//{
 	//	if (isVisible && !isPlaying)
