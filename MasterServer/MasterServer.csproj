@@ -89,6 +89,7 @@
     <Content Include="www\scripts\remote\HostConnection.js" />
     <Content Include="www\vues\client\remote\CustomScroll.css" />
     <None Include="www\vues\client\computer\ClientComputerEvents.vue" />
+    <None Include="www\vues\client\remote\TopBar.vue" />
     <None Include="www\vues\client\remote\RemoteDesktopConnection.vue" />
     <None Include="www\vues\RemoteDesktopFull.vue" />
     <None Include="www\vues\client\computer\ClientComputerPerformance.vue" />

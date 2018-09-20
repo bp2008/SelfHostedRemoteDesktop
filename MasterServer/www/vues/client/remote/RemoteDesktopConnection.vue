@@ -9,6 +9,7 @@
 			An error occurred during loading:<br />
 			<span class="errMsg">{{loadingError}}</span>
 		</div>
+		<TopBar />
 		<div class="videoFrame" v-show="computer && !loading">
 			<canvas ref="myCanvas" class="videoFrameCanvas"></canvas>
 			<div class="notConnected" v-if="isConnecting">
@@ -27,10 +28,12 @@
 	import HostConnection from 'appRoot/scripts/remote/HostConnection.js';
 	import { WebSocketState } from 'appRoot/scripts/remote/WebSocketStreamer.js';
 
+	import TopBar from 'appRoot/vues/client/remote/TopBar.vue';
+
 	let ConnectionState = { Disconnected: 0, Authenticating: 1, Connected: 2 };
 
 	export default {
-		components: {},
+		components: { TopBar },
 		data: function ()
 		{
 			return {
@@ -41,7 +44,8 @@
 				socketState: WebSocketState.Closed
 			};
 		},
-		computed: {
+		computed:
+		{
 			isConnecting()
 			{
 				return this.socketState === WebSocketState.Connecting;
@@ -51,7 +55,8 @@
 				return this.socketState === WebSocketState.Open;
 			}
 		},
-		methods: {
+		methods:
+		{
 			fetchData()
 			{
 				this.loading = true;
@@ -65,7 +70,6 @@
 						sid: this.$store.getters.sid,
 						canvas: this.$refs.myCanvas
 					};
-					console.log(this);
 					this.host = new HostConnection(args);
 					this.host.onSocketStateChanged = this.onSocketStateChanged;
 					this.host.Connect();
@@ -86,7 +90,7 @@
 				this.socketState = state;
 			}
 		},
-		created()
+		mounted()
 		{
 			let compatibilityTestResult = CompatibilityTest();
 			if (compatibilityTestResult)
@@ -97,7 +101,8 @@
 
 			this.fetchData();
 		},
-		watch: {
+		watch:
+		{
 			'$route': 'fetchData' // called if the route changes
 		},
 		beforeDestroy()
@@ -168,6 +173,6 @@
 	.videoFrame
 	{
 		position: relative;
-		background-color: #660000;
+		background-color: #FFFFFF;
 	}
 </style>
