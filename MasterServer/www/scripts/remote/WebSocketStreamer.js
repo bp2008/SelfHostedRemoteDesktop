@@ -1,5 +1,4 @@
-﻿import * as Util from 'appRoot/scripts/Util.js';
-import DesktopInfo from 'appRoot/scripts/remote/objects/DesktopInfo.js';
+﻿import DesktopInfo from 'appRoot/scripts/remote/objects/DesktopInfo.js';
 
 export function WebSocketStreamer(computerId)
 {

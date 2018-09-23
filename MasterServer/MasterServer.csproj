@@ -80,6 +80,7 @@
     <Content Include="www\images\scrollL.png" />
     <Content Include="www\images\scrollR.png" />
     <Content Include="www\images\scrollU.png" />
+    <Content Include="www\scripts\remote\FullscreenController.js" />
     <Content Include="www\scripts\remote\JpegFragmentedVideoRenderer.js" />
     <Content Include="www\scripts\remote\DesktopVideoRenderer.js" />
     <Content Include="www\scripts\remote\objects\DesktopScreen.js" />
@@ -89,8 +90,10 @@
     <Content Include="www\scripts\remote\HostConnection.js" />
     <Content Include="www\vues\client\remote\CustomScroll.css" />
     <None Include="www\vues\client\computer\ClientComputerEvents.vue" />
+    <None Include="www\vues\client\remote\TopBarContent.vue" />
     <None Include="www\vues\client\remote\TopBar.vue" />
     <None Include="www\vues\client\remote\RemoteDesktopConnection.vue" />
+    <None Include="www\vues\common\controls\SvgButton.vue" />
     <None Include="www\vues\RemoteDesktopFull.vue" />
     <None Include="www\vues\client\computer\ClientComputerPerformance.vue" />
     <None Include="www\vues\client\computer\ClientComputerSecurity.vue" />

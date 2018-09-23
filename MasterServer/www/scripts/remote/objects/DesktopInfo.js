@@ -1,5 +1,4 @@
-﻿import * as Util from 'appRoot/scripts/Util.js';
-import DesktopScreen from 'appRoot/scripts/remote/objects/DesktopScreen.js';
+﻿import DesktopScreen from 'appRoot/scripts/remote/objects/DesktopScreen.js';
 
 export default class DesktopInfo
 {

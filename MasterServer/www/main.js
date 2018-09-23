@@ -40,6 +40,9 @@ window.toaster = new ToasterHelper(myApp.$toastr);
 import { globalSettings } from 'appRoot/scripts/LocalSettings.js';
 window.settings = globalSettings;
 
+import * as Util from 'appRoot/scripts/Util.js';
+window.Util = Util;
+
 router.onReady(() =>
 {
 	const matchedComponents = router.getMatchedComponents();

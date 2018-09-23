@@ -1,6 +1,4 @@
-﻿import { EscapeHTML } from 'appRoot/scripts/Util.js';
-
-export default function ToasterHelper(toastMethod)
+﻿export default function ToasterHelper(toastMethod)
 {
 	this.error = this.Error = function (title, message, duration)
 	{

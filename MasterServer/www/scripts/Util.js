@@ -164,51 +164,51 @@ var WebSocketCloseCode = new (function ()
 // Custom Events //////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 var SHRD_CustomEvent =
+{
+	customEventRegistry: new Object(),
+	AddListener: function (eventName, eventHandler)
 	{
-		customEventRegistry: new Object(),
-		AddListener: function (eventName, eventHandler)
+		if (typeof this.customEventRegistry[eventName] === "undefined")
+			this.customEventRegistry[eventName] = new Array();
+		this.customEventRegistry[eventName].push(eventHandler);
+	},
+	RemoveListener: function (eventName, eventHandler)
+	{
+		if (typeof this.customEventRegistry[eventName] === "undefined")
+			return;
+		var handlers = this.customEventRegistry[eventName];
+		var idx = handlers.indexOf(eventHandler);
+		if (idx > -1)
 		{
-			if (typeof this.customEventRegistry[eventName] === "undefined")
-				this.customEventRegistry[eventName] = new Array();
-			this.customEventRegistry[eventName].push(eventHandler);
-		},
-		RemoveListener: function (eventName, eventHandler)
-		{
-			if (typeof this.customEventRegistry[eventName] === "undefined")
-				return;
-			var handlers = this.customEventRegistry[eventName];
-			var idx = handlers.indexOf(eventHandler);
-			if (idx > -1)
-			{
-				var handler = handlers[idx];
-				if (handler.isExecutingEventHandlerNow)
-					handler.removeEventHandlerWhenFinished = true;
-				else
-					handlers.splice(idx, 1);
-			}
-		},
-		Invoke: function (eventName, args)
-		{
-			if (typeof this.customEventRegistry[eventName] !== "undefined")
-				for (var i = 0; i < this.customEventRegistry[eventName].length; i++)
-					try
-					{
-						var handler = this.customEventRegistry[eventName][i];
-						handler.isExecutingEventHandlerNow = true;
-						handler(args);
-						handler.isExecutingEventHandlerNow = false;
-						if (handler.removeEventHandlerWhenFinished)
-						{
-							this.customEventRegistry[eventName].splice(i, 1);
-							i--;
-						}
-					}
-					catch (ex)
-					{
-						toaster.Error(ex);
-					}
+			var handler = handlers[idx];
+			if (handler.isExecutingEventHandlerNow)
+				handler.removeEventHandlerWhenFinished = true;
+			else
+				handlers.splice(idx, 1);
 		}
-	};
+	},
+	Invoke: function (eventName, args)
+	{
+		if (typeof this.customEventRegistry[eventName] !== "undefined")
+			for (var i = 0; i < this.customEventRegistry[eventName].length; i++)
+				try
+				{
+					var handler = this.customEventRegistry[eventName][i];
+					handler.isExecutingEventHandlerNow = true;
+					handler(args);
+					handler.isExecutingEventHandlerNow = false;
+					if (handler.removeEventHandlerWhenFinished)
+					{
+						this.customEventRegistry[eventName].splice(i, 1);
+						i--;
+					}
+				}
+				catch (ex)
+				{
+					toaster.Error(ex);
+				}
+	}
+};
 
 ///////////////////////////////////////////////////////////////
 // Binary Reading /////////////////////////////////////////////
@@ -425,6 +425,35 @@ function Utf8ArrayToStr(array)
 	}
 
 	return out;
+}
+///////////////////////////////////////////////////////////////
+// Event Listeners ////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+/**
+ * Adds a handler for multiple events to the element.
+ * @param {any} ele The element.
+ * @param {any} events Space-delimited list of event names.
+ * @param {any} handler A handler function for all the events.
+ */
+export function AddEvents(ele, events, handler)
+{
+	events.split(" ").forEach(event =>
+	{
+		ele.addEventListener(event, handler);
+	});
+}
+/**
+ * Removes a handler for multiple events from the element.
+ * @param {any} ele The element.
+ * @param {any} events Space-delimited list of event names.
+ * @param {any} handler A handler function that was previously registered.
+ */
+export function RemoveEvents(ele, events, handler)
+{
+	events.split(" ").forEach(event =>
+	{
+		ele.removeEventListener(event, handler);
+	});
 }
 ///////////////////////////////////////////////////////////////
 // Misc ///////////////////////////////////////////////////////

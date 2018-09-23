@@ -1,5 +1,4 @@
-﻿import * as Util from 'appRoot/scripts/Util.js';
-import { GetNamespaceLocalStorage } from 'appRoot/scripts/LocalSettings.js';
+﻿import { GetNamespaceLocalStorage } from 'appRoot/scripts/LocalSettings.js';
 import DesktopVideoRenderer from 'appRoot/scripts/remote/DesktopVideoRenderer.js';
 import InputCatcher from 'appRoot/scripts/remote/InputCatcher.js';
 import { WebSocketStreamer, WebSocketState } from 'appRoot/scripts/remote/WebSocketStreamer.js';

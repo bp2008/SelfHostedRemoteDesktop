@@ -1,6 +1,4 @@
-﻿import * as Util from 'appRoot/scripts/Util.js';
-
-export default class DesktopScreen
+﻿export default class DesktopScreen
 {
 	constructor(buf, offsetWrapper, index)
 	{

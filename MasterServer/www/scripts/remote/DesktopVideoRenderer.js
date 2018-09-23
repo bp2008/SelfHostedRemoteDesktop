@@ -1,5 +1,4 @@
-﻿import * as Util from 'appRoot/scripts/Util.js';
-import JpegFragmentedVideoRenderer from 'appRoot/scripts/remote/JpegFragmentedVideoRenderer.js';
+﻿import JpegFragmentedVideoRenderer from 'appRoot/scripts/remote/JpegFragmentedVideoRenderer.js';
 
 export default function DesktopVideoRenderer(canvas)
 {

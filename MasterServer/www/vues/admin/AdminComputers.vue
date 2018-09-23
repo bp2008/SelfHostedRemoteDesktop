@@ -8,7 +8,6 @@
 
 <script>
 	import ExecJSON from 'appRoot/api/api.js';
-	import { GetFuzzyTime, GetDateStr } from 'appRoot/scripts/Util.js';
 	import { VueGoodTable } from 'vue-good-table';
 
 	export default {
@@ -42,7 +41,7 @@
 						if (c.Uptime > -1) // Computer is online
 						{
 							var dateLastConnect = new Date(Date.now() - c.Uptime);
-							c.StatusHtml = '<span class="compOnline">Online ' + GetFuzzyTime(c.Uptime) + ' since ' + GetDateStr(dateLastConnect) + '</span>';
+							c.StatusHtml = '<span class="compOnline">Online ' + Util.GetFuzzyTime(c.Uptime) + ' since ' + Util.GetDateStr(dateLastConnect) + '</span>';
 						}
 						else if (c.LastDisconnect === 0) // Computer has never connected
 							c.StatusHtml = '<span class="compOffline">Has Never Connected</span>';
@@ -50,7 +49,7 @@
 						{
 							var dateLastDisconnect = new Date(c.LastDisconnect);
 							var timeSinceDisconnect = Date.now() - c.LastDisconnect;
-							c.StatusHtml = '<span class="compOffline">Disconnected since ' + GetFuzzyTime(timeSinceDisconnect) + ' at ' + GetDateStr(dateLastDisconnect) + '</span>';
+							c.StatusHtml = '<span class="compOffline">Disconnected since ' + Util.GetFuzzyTime(timeSinceDisconnect) + ' at ' + Util.GetDateStr(dateLastDisconnect) + '</span>';
 						}
 					}
 					this.rows = data.Computers;

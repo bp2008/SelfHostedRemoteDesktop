@@ -1,6 +1,4 @@
-﻿import * as Util from 'appRoot/scripts/Util.js';
-
-export default function JpegFragmentedVideoPlayer(canvas)
+﻿export default function JpegFragmentedVideoPlayer(canvas)
 {
 	let self = this;
 	let submittedImageFragments = 0;

@@ -1,6 +1,4 @@
-﻿import * as Util from 'appRoot/scripts/Util.js';
-
-export default function InputCatcher(canvas)
+﻿export default function InputCatcher(canvas)
 {
 	var self = this;
 	var initialized = false;

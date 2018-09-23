@@ -12,7 +12,6 @@
 <script>
 	import ExecJSON from 'appRoot/api/api.js';
 	import bcrypt from 'appRoot/scripts/bcrypt.min.js';
-	import * as util from 'appRoot/scripts/Util.js';
 	import Footer from 'appRoot/vues/common/Footer.vue';
 
 	export default {
@@ -59,14 +58,14 @@
 						// Use BCrypt on the password, using the salt provided by the server.
 						var bCryptResult = bcrypt.hashSync(this.pass, data.salt);
 						// Compute SHA512 so we have the desired output size for later XORing
-						var bCryptResultHex = util.bytesToHex(util.stringToUtf8ByteArray(bCryptResult));
-						var onceHashedPw = util.ComputeSHA512Hex(bCryptResultHex);
+						var bCryptResultHex = Util.bytesToHex(Util.stringToUtf8ByteArray(bCryptResult));
+						var onceHashedPw = Util.ComputeSHA512Hex(bCryptResultHex);
 						// We prove our identity by transmitting onceHashedPw to the server.
 						// However we won't do that in plain text.
 						// Hash one more time; PasswordHash is the value remembered by the server
-						var PasswordHash = util.ComputeSHA512Hex(onceHashedPw);
-						var challengeHashed = util.ComputeSHA512Hex(PasswordHash + data.challenge);
-						args.response = util.XORHexStrings(challengeHashed, onceHashedPw);
+						var PasswordHash = Util.ComputeSHA512Hex(onceHashedPw);
+						var challengeHashed = Util.ComputeSHA512Hex(PasswordHash + data.challenge);
+						args.response = Util.XORHexStrings(challengeHashed, onceHashedPw);
 					}
 					catch (ex)
 					{

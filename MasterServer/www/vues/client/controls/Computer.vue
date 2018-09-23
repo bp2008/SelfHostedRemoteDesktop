@@ -7,7 +7,6 @@
 
 <script>
 	import svg1 from 'appRoot/images/sprite/computer.svg'; // Ignore the warning that this is never read.
-	import { GetFuzzyTime, GetDateStr } from 'appRoot/scripts/Util.js';
 
 	export default {
 		props: {
@@ -32,7 +31,7 @@
 				if (this.computer.Uptime > -1) // Computer is online
 				{
 					var dateLastConnect = new Date(Date.now() - this.computer.Uptime);
-					return 'Online ' + GetFuzzyTime(this.computer.Uptime) + ' since ' + GetDateStr(dateLastConnect);
+					return 'Online ' + Util.GetFuzzyTime(this.computer.Uptime) + ' since ' + Util.GetDateStr(dateLastConnect);
 				}
 				else if (this.computer.LastDisconnect === 0) // Computer has never connected
 					return 'Never Connected';
@@ -40,7 +39,7 @@
 				{
 					var dateLastDisconnect = new Date(this.computer.LastDisconnect);
 					var timeSinceDisconnect = Date.now() - this.computer.LastDisconnect;
-					return 'Disconnected since ' + GetFuzzyTime(timeSinceDisconnect) + ' at ' + GetDateStr(dateLastDisconnect);
+					return 'Disconnected since ' + Util.GetFuzzyTime(timeSinceDisconnect) + ' at ' + Util.GetDateStr(dateLastDisconnect);
 				}
 			}
 		},
