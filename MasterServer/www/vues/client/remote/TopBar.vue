@@ -1,37 +1,59 @@
 ﻿<template>
-	<div class="topBar" :style="topBarStyle">
-		<TopBarContent />
+	<div class="topBarWrapper">
+		<div ref="topBar" class="topBar" :style="topBarStyle">
+			<TopBarContent @drawerChange="onDrawerChange" :computer="computer" :drawerController="drawerController" />
+		</div>
+		<TopBarDrawer class="topBarDrawer" :style="topBarDrawerStyle" :computer="computer" :drawerController="drawerController" />
 	</div>
 </template>
-
 <script>
 	import TopBarContent from 'appRoot/vues/client/remote/TopBarContent.vue';
-
+	import TopBarDrawer from 'appRoot/vues/client/remote/TopBarDrawer.vue';
 	export default {
-		components: { TopBarContent },
+		components: { TopBarContent, TopBarDrawer },
 		props:
 		{
+			computer: {
+				type: Object,
+				default: null
+			}
 		},
 		data: function ()
 		{
 			return {
 				barWidth: 340,
-				left: 0.5,
+				position: 0.5,
 				vw: 0,
 				vh: 0,
 				mouseState: {
 					dragging: false,
 					dragStartX: 0, // Window offset X of drag start point
 					dragLeftOffsetX: 0 // X of offset of left edge of topBar from cursor
+				},
+				drawerController: {
+					drawerName: ""
 				}
 			};
 		},
 		computed:
 		{
+			topBarLeftPx()
+			{
+				return 20 + ((this.vw - this.barWidth) * this.position);
+			},
 			topBarStyle()
 			{
 				return {
-					left: 20 + ((this.vw - this.barWidth) * this.left) + "px"
+					left: this.topBarLeftPx + "px"
+				};
+			},
+			topBarDrawerStyle()
+			{
+				let topBarWidth = this.$refs.topBar ? this.$refs.topBar.offsetWidth : 0;
+				let topBarCenter = this.topBarLeftPx + (topBarWidth / 2);
+				return {
+					left: Util.Clamp(topBarCenter - 150, 0, this.vw - 300) + "px",
+					maxHeight: (this.vh - 38) + "px"
 				};
 			}
 		},
@@ -39,12 +61,11 @@
 		{
 			mouseDown(e)
 			{
-				if (e.target === this.$el)
+				if (e.target === this.$refs.topBar)
 				{
 					this.mouseState.dragging = true;
 					this.mouseState.dragLeftOffsetX = e.offsetX;
 					this.mouseState.dragStartX = e.pageX;
-
 					e.preventDefault();
 					e.stopPropagation();
 					e.stopImmediatePropagation();
@@ -72,18 +93,28 @@
 			},
 			moveTopBar(pageX)
 			{
-				let desiredTopBarLeftPx = (pageX - this.mouseState.dragLeftOffsetX - 20);
-				this.left = Util.Clamp(desiredTopBarLeftPx / (this.vw - this.barWidth), 0, 1);
+				let desiredTopBarLeftPx = pageX - this.mouseState.dragLeftOffsetX - 20;
+				this.position = Util.Clamp(desiredTopBarLeftPx / (this.vw - this.barWidth), 0, 1);
 			},
 			dblClick(e)
 			{
-				if (e.target === this.$el)
-					this.left = 0.5;
+				if (e.target === this.$refs.topBar)
+					this.position = 0.5;
+			},
+			onDrawerChange(drawerName)
+			{
+				if (drawerName === this.drawerName)
+				{
+					this.drawerName = null;
+					return;
+				}
+				this.drawerName = drawerName;
 			}
 		},
 		created()
 		{
 			this.vw = window.innerWidth;
+			this.vh = window.innerHeight;
 			window.addEventListener('resize', e =>
 			{
 				this.vw = window.innerWidth;
@@ -95,26 +126,31 @@
 		},
 		mounted()
 		{
-			Util.AddEvents(this.$el, "mousedown touchstart", this.mouseDown);
-			Util.AddEvents(this.$el, "dblclick", this.dblClick);
-			this.barWidth = 40 + this.$el.offsetWidth;
+			Util.AddEvents(this.$refs.topBar, "mousedown touchstart", this.mouseDown);
+			Util.AddEvents(this.$refs.topBar, "dblclick", this.dblClick);
+			this.barWidth = 40 + this.$refs.topBar.offsetWidth;
 		},
 		updated()
 		{
-			this.barWidth = 40 + this.$el.offsetWidth;
+			this.barWidth = 40 + this.$refs.topBar.offsetWidth;
 		},
 		beforeDestroy()
 		{
-			Util.RemoveEvents(this.$el, "mousedown touchstart", this.mouseDown);
-			Util.RemoveEvents(this.$el, "dblclick", this.dblClick);
+			Util.RemoveEvents(this.$refs.topBar, "mousedown touchstart", this.mouseDown);
+			Util.RemoveEvents(this.$refs.topBar, "dblclick", this.dblClick);
 			Util.RemoveEvents(document, "mousemove touchmove", this.mouseMove);
 			Util.RemoveEvents(document, "mouseup touchend", this.mouseUp);
 			Util.RemoveEvents(document, 'touchcancel', this.touchCancel);
 		}
 	};
 </script>
-
 <style scoped>
+	.topBarWrapper
+	{
+		width: 0px;
+		height: 0px;
+	}
+
 	.topBar
 	{
 		height: 36px;
@@ -151,4 +187,17 @@
 			left: 100%;
 			border-right: 18px solid transparent;
 		}
+
+	.topBarDrawer
+	{
+		position: absolute;
+		padding: 2px 4px;
+		top: 36px;
+		z-index: 110;
+		border: 1px solid #666666;
+		width: 300px;
+		background-color: #FFFFFF;
+		box-shadow: inset 0px 0px 2px rgba(0,0,0,0.5);
+		font-size: 10pt;
+	}
 </style>

@@ -35,15 +35,14 @@
 		data: function ()
 		{
 			return {
+				systemName: appContext.systemName
 			};
 		},
-		computed: {
-			systemName()
-			{
-				return appContext.systemName;
-			}
+		computed:
+		{
 		},
-		methods: {
+		methods:
+		{
 			logoutClicked()
 			{
 				ExecJSON({ cmd: "logout" }).finally(() =>

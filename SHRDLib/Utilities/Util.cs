@@ -56,30 +56,6 @@ namespace SHRDLib
 			return BCrypt.Net.BCrypt.GenerateFakeSalt(10, Hash.GetSHA1Bytes(userName.ToLower() + "TODO: Make this secret changeable and randomly generated, but persisted on disk"));
 		}
 
-		/// <summary>
-		/// Gets a random character from the ranges 0-9, A-Z, a-z. There are 62 possible characters this method will return.
-		/// </summary>
-		/// <returns></returns>
-		public static char GetRandomAlphaNumericChar()
-		{
-			int i = SecureRandom.Next(62);
-			if (i < 10)
-				return (char)(48 + i);
-			if (i < 36)
-				return (char)(65 + (i - 10));
-			return (char)(97 + (i - 36));
-		}
-		/// <summary>
-		/// Gets a string of random characters from the ranges 0-9, A-Z, a-z. There are 62 possible characters this method will return.
-		/// </summary>
-		/// <returns></returns>
-		public static string GetRandomAlphaNumericString(ushort length)
-		{
-			StringBuilder sb = new StringBuilder(length);
-			for (int i = 0; i < length; i++)
-				sb.Append(GetRandomAlphaNumericChar());
-			return sb.ToString();
-		}
 		private static Regex rxNameEndsInNumber = new Regex("-(\\d+)$", RegexOptions.Compiled);
 		/// <summary>
 		/// Designed to be used along with the [AttemptUntilTrue] method.  Removes a previously-added "-#" tag and adds a new one to the name, ensuring the name does not exceed the allowed length.  If tryNumber is 1, the string is returned unaltered.  If tryNumber is 2, any previously-added "-#" tag is not removed.

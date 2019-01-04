@@ -19,27 +19,33 @@
 		data: function ()
 		{
 			return {
+				systemName: appContext.systemName,
 				user: "admin",
 				pass: "admin",
+				lastUsedUser: null,
+				lastUsedPass: null,
+				lastSalt: null,
 				loginEnabled: true
 			};
 		},
-		computed: {
-			systemName()
-			{
-				return appContext.systemName;
-			}
+		computed:
+		{
 		},
-		methods: {
+		methods:
+		{
 			TryLogin()
 			{
+				if (!this.loginEnabled)
+					return;
 				this.loginEnabled = false;
-				var args = { cmd: "login", user: this.user };
+				this.lastUsedUser = this.user;
+				this.lastUsedPass = this.pass;
+				this.lastSalt = null;
+				var args = { cmd: "login", user: this.lastUsedUser };
 				ExecJSON(args).then(data =>
 				{
-					this.$store.commit("SetSid", data.session);
+					toaster.error("Login Error", "Login protocol failed. Server did not return expected challenge.");
 					this.loginEnabled = true;
-					this.HandleSuccessfulLogin(data);
 				}
 				).catch(err =>
 				{
@@ -53,10 +59,11 @@
 					let data = err.data;
 					args.session = data.session;
 					this.$store.commit("SetSid", data.session);
+					this.lastSalt = data.salt;
 					try
 					{
 						// Use BCrypt on the password, using the salt provided by the server.
-						var bCryptResult = bcrypt.hashSync(this.pass, data.salt);
+						var bCryptResult = bcrypt.hashSync(this.lastUsedPass, data.salt);
 						// Compute SHA512 so we have the desired output size for later XORing
 						var bCryptResultHex = Util.bytesToHex(Util.stringToUtf8ByteArray(bCryptResult));
 						var onceHashedPw = Util.ComputeSHA512Hex(bCryptResultHex);
@@ -75,7 +82,7 @@
 					}
 					ExecJSON(args).then(data =>
 					{
-						this.$store.commit("SetSid", data.session);
+						this.$store.commit("SessionAuthenticated", { sid: data.session, settingsKey: data.settingsKey });
 						this.HandleSuccessfulLogin(data);
 					}
 					).catch(err =>

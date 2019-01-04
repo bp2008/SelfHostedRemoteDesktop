@@ -7,7 +7,6 @@ using System.Threading;
 using BPUtil;
 using MasterServer.Config;
 using MasterServer.Database;
-using SHRDLib;
 
 namespace MasterServer
 {
@@ -31,11 +30,11 @@ namespace MasterServer
 			
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-			BPUtil.SimpleHttp.SimpleHttpLogger.RegisterLogger(BPUtil.Logger.httpLogger);
+			BPUtil.SimpleHttp.SimpleHttpLogger.RegisterLogger(Logger.httpLogger);
 
-			settings = new Config.Settings();
-			if (!settings.Load())
-				settings.Save();
+			settings = new Settings();
+			settings.Load();
+			settings.SaveIfNoExist();
 
 			db = new DB();
 			httpServer = new WebServer(8088);

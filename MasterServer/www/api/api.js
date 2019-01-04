@@ -18,6 +18,7 @@
 			if (data.error === "missing session" || data.error === "invalid session")
 			{
 				console.log(args.cmd + ' error: "' + data.error + '". Redirecting to login.');
+				window.myApp.$store.commit("SessionLost");
 				window.location.href = appContext.appPath + "login";
 			}
 			else if (!(args.cmd === 'login' && data.error === 'login challenge'))

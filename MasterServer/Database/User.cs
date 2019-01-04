@@ -71,10 +71,26 @@ namespace MasterServer.Database
 		[NotNull]
 		public bool Permanent { get; set; } = false;
 
+		/// <summary>
+		/// A password used that is used clientside for encrypted settings storage.
+		/// This value should never change, and therefore can't be derived from the user name and password.
+		/// </summary>
+		[NotNull]
+		[MaxLength(64)]
+		public string SettingsKey { get; set; }
+
 		public User()
 		{
 		}
 
+		/// <summary>
+		/// Creates a new user and performs one-time initialization operations, such as generating the Salt and SettingsKey values.
+		/// </summary>
+		/// <param name="Name"></param>
+		/// <param name="Password"></param>
+		/// <param name="DisplayName"></param>
+		/// <param name="Email"></param>
+		/// <param name="IsAdmin"></param>
 		public User(string Name, string Password, string DisplayName, string Email, bool IsAdmin)
 		{
 			this.Name = Name;
@@ -83,7 +99,24 @@ namespace MasterServer.Database
 			this.Salt = Util.BCryptSalt();
 			this.PasswordHash = HashPassword(Password);
 			this.IsAdmin = IsAdmin;
+			this.SettingsKey = GenerateSettingsKey();
 		}
+
+		/// <summary>
+		/// Generates a random 64-character string using characters from the Base64 character set.
+		/// </summary>
+		/// <returns></returns>
+		private string GenerateSettingsKey()
+		{
+			if (this.Salt == null)
+				this.Salt = Util.BCryptSalt();
+			byte[] buf = ByteUtil.Utf8NoBOM.GetBytes(this.Salt + StringUtil.GetRandomAlphaNumericString(64));
+			byte[] hash = Hash.GetSHA512Bytes(buf);
+			// This hash was derived from the Salt concatenated with an additional random string, to negate vulnerabilities that may exist in either the Salt or the random string generator.
+			string keySrc = Convert.ToBase64String(hash, Base64FormattingOptions.None);
+			return keySrc.Substring(0, 64); // The Base64 encoding of a SHA512 hash is 88 characters long, including padding characters.  We're only going to store 64 characters.
+		}
+
 		/// <summary>
 		/// Sets the password for this user.
 		/// </summary>

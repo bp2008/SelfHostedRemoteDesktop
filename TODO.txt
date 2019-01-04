@@ -8,6 +8,11 @@ Streamer: The SHRD Streamer, which is a process spawned by the Host Service for 
 
 ---------------------------------
 
+The login "remember me" feature should store the un/pw in local storage, trivially encrypted using a static key.  More convoluted methods such as storing the key only on the server are mostly worthless, since any such method would require that the key be retrievable by an unauthenticated client.  Traditional password managers may be more secure, but require extra clicks.
+
+Low priority: Proper 2FA authentication using Google Authenticator.
+Low priority: Basic 2FA authentication using email.
+
 The HostConnect authentication process should verify the signature BEFORE committing the computer to the database.
 
 Teach Client.html to render the remote cursor wherever it is with the correct icon.

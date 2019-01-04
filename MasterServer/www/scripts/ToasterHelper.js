@@ -1,4 +1,6 @@
-﻿export default function ToasterHelper(toastMethod)
+﻿import * as Util from 'appRoot/scripts/Util.js';
+
+export default function ToasterHelper(toastMethod)
 {
 	this.error = this.Error = function (title, message, duration)
 	{
@@ -30,13 +32,13 @@
 		if (typeof message === "object" && typeof message.message === "string" && typeof message.stack === "string")
 		{
 			console.error(type + " toast", message);
-			message = EscapeHTML(message.message + ": " + message.stack);
+			message = Util.EscapeHTML(message.message + ": " + message.stack);
 		}
 		else if (typeof message === "object" && typeof message.name === "string" && typeof message.message === "string" && typeof message.code === "number")
 		{
 			message = message.name + " (code " + message.code + "): " + message.message, message;
 			console.error(type + " toast", message);
-			message = EscapeHTML(message);
+			message = Util.EscapeHTML(message);
 		}
 		else
 		{

@@ -30,7 +30,7 @@ namespace MasterServer
 				Console.ForegroundColor = ConsoleColor.Cyan;
 				Console.WriteLine("Starting web server in dev mode. Webpack Proxy is enabled.");
 				Console.ResetColor();
-				webpackProxy = new WebpackProxy(9000);
+				webpackProxy = new WebpackProxy(9000, Globals.ApplicationDirectoryBase + "../../../");
 			}
 		}
 

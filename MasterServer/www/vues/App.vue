@@ -13,14 +13,16 @@
 			return {
 			};
 		},
-		computed: {
+		computed:
+		{
 		},
-		methods: {
+		methods:
+		{
 		},
 		created()
 		{
 		}
-	}
+	};
 </script>
 
 <style scoped>

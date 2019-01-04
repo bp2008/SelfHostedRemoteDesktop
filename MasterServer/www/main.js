@@ -37,11 +37,14 @@ let myApp = window.myApp = new Vue({
 import ToasterHelper from 'appRoot/scripts/ToasterHelper.js';
 window.toaster = new ToasterHelper(myApp.$toastr);
 
-import { globalSettings } from 'appRoot/scripts/LocalSettings.js';
-window.settings = globalSettings;
-
 import * as Util from 'appRoot/scripts/Util.js';
 window.Util = Util;
+
+let uidCounter = 0;
+window.GetUid = function ()
+{
+	return uidCounter++;
+};
 
 router.onReady(() =>
 {

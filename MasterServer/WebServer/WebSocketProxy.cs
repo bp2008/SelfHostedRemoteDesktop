@@ -97,7 +97,7 @@ namespace MasterServer
 			}
 
 			// The computer is online.  Send a request to have the Host Service connect to this Master Server's web socket proxy service.
-			string proxyKey = Util.GetRandomAlphaNumericString(64);
+			string proxyKey = StringUtil.GetRandomAlphaNumericString(64);
 			WaitingClient waitingClient = null;
 			try
 			{

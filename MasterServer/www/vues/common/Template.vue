@@ -7,19 +7,31 @@
 <script>
 
 	export default {
-		data: function ()
+		components: {},
+		props:
+		{
+		},
+		data()
 		{
 			return {
 			};
 		},
-		computed: {
+		computed:
+		{
 		},
-		methods: {
+		methods:
+		{
 		},
 		created()
 		{
+		},
+		mounted()
+		{
+		},
+		beforeDestroy()
+		{
 		}
-	}
+	};
 </script>
 
 <style scoped>

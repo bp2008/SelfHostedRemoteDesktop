@@ -9,7 +9,7 @@
 			An error occurred during loading:<br />
 			<span class="errMsg">{{loadingError}}</span>
 		</div>
-		<TopBar />
+		<TopBar :computer="computer" />
 		<div class="videoFrame" v-show="computer && !loading">
 			<canvas ref="myCanvas" class="videoFrameCanvas"></canvas>
 			<div class="notConnected" v-if="isConnecting">

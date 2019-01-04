@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BPUtil;
 using MasterServer.Database;
 using SHRDLib;
 
@@ -91,7 +92,7 @@ namespace MasterServer
 		{
 			ServerSession session = new ServerSession();
 			// 16 characters, each character having 62 possible values, yields (62 ^ 16 =) 47672401706823533450263330816 possible session strings.
-			session.sid = Util.GetRandomAlphaNumericString(16);
+			session.sid = StringUtil.GetRandomAlphaNumericString(16);
 			session.TouchNow();
 			return session;
 		}

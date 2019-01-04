@@ -56,7 +56,7 @@ namespace MasterServer.Database
 		/// <returns></returns>
 		public static SecurityKey GenerateNew(SecurityKeyPermission Permission)
 		{
-			return new SecurityKey(Util.GetRandomAlphaNumericString(64), Permission);
+			return new SecurityKey(StringUtil.GetRandomAlphaNumericString(64), Permission);
 		}
 	}
 	public enum SecurityKeyPermission : byte

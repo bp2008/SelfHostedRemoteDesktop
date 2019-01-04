@@ -4,13 +4,14 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width" />
-	<title>Self Hosted Remote Desktop %%APP_VERSION%%</title>
+	<title>Self Hosted Remote Desktop</title>
 	<script>
+		var serverVersion = "%%APP_VERSION%%";
 		var appContext = {
 			systemName: "%%SYSTEM_NAME%%",
-			appPath: "%%APPPATH%%"
+			appPath: "%%APPPATH%%",
+			serverVersion: serverVersion
 		};
-		var serverVersion = "%%APP_VERSION%%";
 		window.onerror = function (msg, url, line, charIdx)
 		{
 			try

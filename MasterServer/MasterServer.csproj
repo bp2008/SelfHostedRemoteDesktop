@@ -34,8 +34,8 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\SHRDLib\include\NewtonsoftJson\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -71,29 +71,43 @@
     <Compile Include="WebServer\ServerSession.cs" />
     <Compile Include="ServiceWrapper.cs" />
     <Compile Include="WebServer\SessionManager.cs" />
-    <Compile Include="WebServer\WebpackProxy.cs" />
     <Compile Include="WebServer\WebServer.cs" />
     <Compile Include="WebServer\WebSocketProxy.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="www\images\scrollD.png" />
-    <Content Include="www\images\scrollL.png" />
-    <Content Include="www\images\scrollR.png" />
-    <Content Include="www\images\scrollU.png" />
-    <Content Include="www\scripts\remote\FullscreenController.js" />
-    <Content Include="www\scripts\remote\JpegFragmentedVideoRenderer.js" />
-    <Content Include="www\scripts\remote\DesktopVideoRenderer.js" />
-    <Content Include="www\scripts\remote\objects\DesktopScreen.js" />
-    <Content Include="www\scripts\remote\objects\DesktopInfo.js" />
-    <Content Include="www\scripts\remote\WebSocketStreamer.js" />
-    <Content Include="www\scripts\remote\InputCatcher.js" />
-    <Content Include="www\scripts\remote\HostConnection.js" />
-    <Content Include="www\vues\client\remote\CustomScroll.css" />
+    <None Include="include\sqlite3\libsqlite3.so" />
+    <None Include="www\images\sprite\input.svg" />
+    <None Include="www\favicon.ico" />
+    <None Include="www\images\ajax-loader.gif" />
+    <None Include="www\images\scrollD.png" />
+    <None Include="www\images\scrollL.png" />
+    <None Include="www\images\scrollR.png" />
+    <None Include="www\images\scrollU.png" />
+    <None Include="www\images\sprite\zoom_fit.svg" />
+    <None Include="www\images\sprite\zoom_in.svg" />
+    <None Include="www\images\sprite\zoom_out.svg" />
+    <None Include="www\scripts\ComputerSpecificSettings.js" />
+    <None Include="www\scripts\remote\FullscreenController.js" />
+    <None Include="www\scripts\remote\JpegFragmentedVideoRenderer.js" />
+    <None Include="www\scripts\remote\DesktopVideoRenderer.js" />
+    <None Include="www\scripts\remote\objects\DesktopScreen.js" />
+    <None Include="www\scripts\remote\objects\DesktopInfo.js" />
+    <None Include="www\scripts\remote\WebSocketStreamer.js" />
+    <None Include="www\scripts\remote\InputCatcher.js" />
+    <None Include="www\scripts\remote\HostConnection.js" />
+    <None Include="www\vues\client\remote\CustomScroll.css" />
+    <None Include="packages.config" />
     <None Include="www\vues\client\computer\ClientComputerEvents.vue" />
+    <None Include="www\vues\client\remote\TopBarDrawer.vue" />
     <None Include="www\vues\client\remote\TopBarContent.vue" />
     <None Include="www\vues\client\remote\TopBar.vue" />
     <None Include="www\vues\client\remote\RemoteDesktopConnection.vue" />
+    <None Include="www\vues\client\remote\TopBarDrawers\ZoomDrawer.vue" />
+    <None Include="www\vues\client\remote\TopBarDrawers\SettingsDrawer.vue" />
+    <None Include="www\vues\client\remote\TopBarDrawers\DrawerToggleButton.vue" />
     <None Include="www\vues\common\controls\SvgButton.vue" />
+    <None Include="www\vues\common\editor\PropEdit.vue" />
+    <None Include="www\vues\common\editor\Editor.vue" />
     <None Include="www\vues\RemoteDesktopFull.vue" />
     <None Include="www\vues\client\computer\ClientComputerPerformance.vue" />
     <None Include="www\vues\client\computer\ClientComputerSecurity.vue" />
@@ -105,33 +119,34 @@
     <None Include="www\vues\common\ScaleLoader.vue" />
     <None Include=".babelrc" />
     <None Include="App.config" />
+    <Content Include="include\sqlite3\sqlite3.dll" />
     <Content Include="webpack.config.js" />
-    <Content Include="www\404.html" />
-    <Content Include="www\api\api.js" />
-    <Content Include="www\Default.html" />
-    <Content Include="www\images\sprite\add.svg" />
-    <Content Include="www\images\sprite\add_computer.svg" />
-    <Content Include="www\images\sprite\add_group.svg" />
-    <Content Include="www\images\sprite\add_user.svg" />
-    <Content Include="www\images\sprite\chart.svg" />
-    <Content Include="www\images\sprite\computer.svg" />
-    <Content Include="www\images\sprite\delete.svg" />
-    <Content Include="www\images\sprite\fullscreen.svg" />
-    <Content Include="www\images\sprite\fullscreen_exit.svg" />
-    <Content Include="www\images\sprite\group.svg" />
-    <Content Include="www\images\sprite\network.svg" />
-    <Content Include="www\images\sprite\remove.svg" />
-    <Content Include="www\images\sprite\remove_computer.svg" />
-    <Content Include="www\images\sprite\settings.svg" />
-    <Content Include="www\images\sprite\settings_network.svg" />
-    <Content Include="www\images\sprite\user.svg" />
-    <Content Include="www\main.js" />
-    <Content Include="www\router\index.js" />
+    <None Include="www\404.html" />
+    <None Include="www\api\api.js" />
+    <None Include="www\Default.html" />
+    <None Include="www\images\sprite\add.svg" />
+    <None Include="www\images\sprite\add_computer.svg" />
+    <None Include="www\images\sprite\add_group.svg" />
+    <None Include="www\images\sprite\add_user.svg" />
+    <None Include="www\images\sprite\chart.svg" />
+    <None Include="www\images\sprite\computer.svg" />
+    <None Include="www\images\sprite\delete.svg" />
+    <None Include="www\images\sprite\fullscreen.svg" />
+    <None Include="www\images\sprite\fullscreen_exit.svg" />
+    <None Include="www\images\sprite\group.svg" />
+    <None Include="www\images\sprite\network.svg" />
+    <None Include="www\images\sprite\remove.svg" />
+    <None Include="www\images\sprite\remove_computer.svg" />
+    <None Include="www\images\sprite\settings.svg" />
+    <None Include="www\images\sprite\settings_network.svg" />
+    <None Include="www\images\sprite\user.svg" />
+    <None Include="www\main.js" />
+    <None Include="www\router\index.js" />
     <None Include="package.json" />
     <None Include="www\jsconfig.json" />
     <None Include="www\vues\admin\AdminUsers.vue" />
     <None Include="www\vues\admin\AdminComputers.vue" />
-    <None Include="www\vues\admin\Template.vue" />
+    <None Include="www\vues\common\Template.vue" />
     <None Include="www\vues\admin\AdminMenu.vue" />
     <None Include="www\vues\admin\AdminLayout.vue" />
     <None Include="www\vues\admin\AdminStatus.vue" />
@@ -143,6 +158,8 @@
     <None Include="www\vues\client\ClientLayout.vue" />
     <None Include="www\vues\client\ClientHome.vue" />
     <None Include="www\vues\App.vue" />
+    <None Include="Z_NpmInstall.bat" />
+    <None Include="Z_WebpackBuild.bat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BPUtil\BPUtil\BPUtil.csproj">
@@ -155,55 +172,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="www\Client.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\images\sprite.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\bcrypt.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\Client.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\jquery.mousewheel.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\KeycodeTranslator.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\Dialog.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\LocalSettings.js" />
-    <Content Include="www\scripts\sha512.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\shared.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\scripts\ToasterHelper.js" />
-    <Content Include="www\scripts\Util.js" />
-    <Content Include="www\store\store.js" />
-    <Content Include="www\styles\theme.green.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\styles\toastr.min.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\styles\admin.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\styles\Client.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\styles\Dialog.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="www\test.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Include="www\Client.html" />
+    <None Include="www\images\sprite.svg" />
+    <None Include="www\scripts\bcrypt.min.js" />
+    <None Include="www\scripts\Client.js" />
+    <None Include="www\scripts\jquery.mousewheel.min.js" />
+    <None Include="www\scripts\KeycodeTranslator.js" />
+    <None Include="www\scripts\Dialog.js" />
+    <None Include="www\scripts\LocalSettings.js" />
+    <None Include="www\scripts\sha512.js" />
+    <None Include="www\scripts\shared.js" />
+    <None Include="www\scripts\ToasterHelper.js" />
+    <None Include="www\scripts\Util.js" />
+    <None Include="www\store\store.js" />
+    <None Include="www\styles\theme.green.css" />
+    <None Include="www\styles\toastr.min.css" />
+    <None Include="www\styles\admin.css" />
+    <None Include="www\styles\Client.css" />
+    <None Include="www\styles\Dialog.css" />
+    <None Include="www\test.html" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

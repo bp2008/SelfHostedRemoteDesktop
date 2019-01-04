@@ -66,7 +66,7 @@ namespace MasterServer
 						if (authenticated)
 						{
 							session.userId = user.ID;
-							response = new ResultLoginSuccess(session);
+							response = new ResultLoginSuccess(session, user.SettingsKey);
 						}
 						else
 							response = new ResultFailWithReason(session, "authentication rejected");
@@ -234,10 +234,12 @@ namespace MasterServer
 		{
 			public string session;
 			public bool admin;
-			public ResultLoginSuccess(ServerSession session)
+			public string settingsKey;
+			public ResultLoginSuccess(ServerSession session, string settingsKey)
 			{
 				this.session = session.sid;
 				this.admin = session.IsAdminValid;
+				this.settingsKey = settingsKey;
 			}
 		}
 		private class GetComputerGroupsResult : ResultSuccess

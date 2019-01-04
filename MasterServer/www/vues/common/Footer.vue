@@ -8,18 +8,8 @@
 		data: function ()
 		{
 			return {
+				serverVersion: appContext.serverVersion
 			};
-		},
-		computed: {
-			serverVersion()
-			{
-				return serverVersion;
-			}
-		},
-		methods: {
-		},
-		created()
-		{
 		}
 	}
 </script>

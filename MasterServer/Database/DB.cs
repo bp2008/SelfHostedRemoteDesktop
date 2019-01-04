@@ -45,6 +45,7 @@ namespace MasterServer.Database
 				{
 					admin = new User("admin", "admin", "Administrator", "admin@example.com", true);
 					admin.Permanent = true;
+					admin.SettingsKey = "Remove this static settings key"; // TODO: Remove this static settings key; it exists only so the key remains constant during early development where the database is frequently wiped.
 					db.Insert(admin);
 					//List<AbstractSetting> newSettings = new List<AbstractSetting>();
 					//newSettings.Add(new AbstractSetting(SettingsKey.mayAccessComputers, true));

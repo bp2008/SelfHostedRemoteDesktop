@@ -12,15 +12,14 @@
 		data: function ()
 		{
 			return {
+				systemName: appContext.systemName
 			};
 		},
-		computed: {
-			systemName()
-			{
-				return appContext.systemName;
-			}
+		computed:
+		{
 		},
-		methods: {
+		methods:
+		{
 			GetHelp()
 			{
 				toaster.error("Error", "Get Help is not implemented");
