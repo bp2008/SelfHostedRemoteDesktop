@@ -12,11 +12,16 @@ namespace SelfHostedRemoteDesktop.Config
 		/// <summary>
 		/// The web address of the master server.
 		/// </summary>
-		public string MasterServerAddress = "http://192.168.0.154:8088/";
+		public string MasterServerAddress = "http://192.168.0.183:8088/";
 		/// <summary>
 		/// If true, the server must present a verifiable certificate (e.g. not self-signed).
 		/// </summary>
 		public bool ValidateServerCertificate = false;
+
+		public Uri GetMasterServerUri()
+		{
+			return new Uri(ServiceWrapper.settings.MasterServerAddress, UriKind.Absolute);
+		}
 
 		///// <summary>
 		///// Gets the web address of the master server, running a simple validation pass to solve issues like a missing forward slash at the end of the string.

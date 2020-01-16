@@ -97,14 +97,14 @@ export function WebSocketStreamer(computerId)
 				break;
 		}
 	};
-	this.setStreamSettings = function ()
+	this.setStreamSettings = function (clientSettings)
 	{
 		var arg = new Uint8Array(5);
 		arg[0] = Command.SetStreamSettings;
 		arg[1] = GetImageColorFlags(clientSettings.colorDetail);
-		arg[2] = Clamp(parseInt(clientSettings.quality), 1, 100);
-		arg[3] = Clamp(parseInt(clientSettings.maxFps), 1, 60);
-		arg[4] = Clamp(parseInt(clientSettings.maxFramesInTransit), 1, 60);
+		arg[2] = Util.Clamp(parseInt(clientSettings.quality), 1, 100);
+		arg[3] = Util.Clamp(parseInt(clientSettings.maxFps), 1, 60);
+		arg[4] = Util.Clamp(parseInt(clientSettings.maxFramesInTransit), 1, 60);
 		SendToWebSocket(arg);
 	};
 	this.startStreaming = function ()

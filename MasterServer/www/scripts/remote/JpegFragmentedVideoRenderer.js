@@ -1,19 +1,19 @@
-﻿export default function JpegFragmentedVideoPlayer(canvas)
+﻿export default function JpegFragmentedVideoRenderer(canvas)
 {
 	let self = this;
 	let submittedImageFragments = 0;
 	let processedImageFragments = 0;
 	let frameSequenceNumberCounter = 0;
 	let nextFrameSequenceNumber = 1;
-	this.Play = function ()
-	{
-		webSocketStreamer.setStreamSettings();
-		webSocketStreamer.startStreaming();
-	};
-	this.Stop = function ()
-	{
-		webSocketStreamer.stopStreaming();
-	};
+	//this.Play = function ()
+	//{
+	//	webSocketStreamer.setStreamSettings();
+	//	webSocketStreamer.startStreaming();
+	//};
+	//this.Stop = function ()
+	//{
+	//	webSocketStreamer.stopStreaming();
+	//};
 	this.ConnectionLost = function ()
 	{
 	};
@@ -34,7 +34,7 @@
 			{
 				if (tries > 250)
 				{
-					toaster.Warning("Hung NewFrame detected in JpegFragmentedVideoPlayer. Pushing ahead with possible image corruption.");
+					toaster.Warning("Hung NewFrame detected in JpegFragmentedVideoRenderer. Pushing ahead with possible image corruption.");
 					// TODO: Restart stream
 				}
 				else

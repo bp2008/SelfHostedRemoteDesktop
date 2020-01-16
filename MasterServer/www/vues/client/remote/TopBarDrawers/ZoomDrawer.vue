@@ -10,7 +10,7 @@
 		props:
 		{
 		},
-		data: function ()
+		data()
 		{
 			return {
 			};

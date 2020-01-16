@@ -18,7 +18,16 @@
 			{
 				url = url.replace(/\/\/.*?\//, '//censored_hostname/');
 				var errStr = "An unexpected error has occurred in SHRD" + location.pathname + " (v " + serverVersion + "). A full refresh may solve the problem (CTRL + F5). If you wish to report the error, please SCREENSHOT the browser now.\n\n" + msg + "\nat " + url + " [" + line + ":" + charIdx + "]\n" + navigator.userAgent;
-				alert(errStr);
+				try
+				{
+					if (window.toaster)
+						window.toaster.error(errStr);
+				}
+				catch (ex)
+				{
+					console.error(errStr);
+					alert(errStr);
+				}
 			}
 			catch (ex)
 			{

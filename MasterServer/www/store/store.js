@@ -128,6 +128,10 @@ export default function CreateStore()
 			sid(state)
 			{
 				return state.sid;
+			},
+			getComputerSpecificSettings(state)
+			{
+				return computerId => state.computerSpecificSettings[computerId];
 			}
 		}
 	});

@@ -42,7 +42,7 @@ namespace SelfHostedRemoteDesktop
 				bool cmd = args.Length > 0 && args[0] == "cmd";
 				if (cmd || Debugger.IsAttached)
 				{
-					ConsoleAppHelper.AllocateConsole();
+					BPUtil.NativeWin.WinConsole.Initialize();
 					Logger.logType = LoggingMode.Console | LoggingMode.File;
 					Logger.Info("Console environment detected. Logging to console is enabled.");
 					ServiceWrapper.Initialize();

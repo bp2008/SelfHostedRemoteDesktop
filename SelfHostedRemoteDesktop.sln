@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfHostedRemoteDesktop", "SelfHostedRemoteDesktop\SelfHostedRemoteDesktop.csproj", "{5F709681-6E61-48E1-80E4-656A7E65C9D0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "websocket-sharp", "websocket-sharp\websocket-sharp.csproj", "{B357BAC7-529E-4D81-A0D2-71041B19C8DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterServer", "MasterServer\MasterServer.csproj", "{6708D7C9-EB84-48C6-960A-D8164DD08FC8}"
 EndProject
@@ -28,10 +26,6 @@ Global
 		{5F709681-6E61-48E1-80E4-656A7E65C9D0}.Debug|x64.Build.0 = Debug|x64
 		{5F709681-6E61-48E1-80E4-656A7E65C9D0}.Release|x64.ActiveCfg = Release|x64
 		{5F709681-6E61-48E1-80E4-656A7E65C9D0}.Release|x64.Build.0 = Release|x64
-		{B357BAC7-529E-4D81-A0D2-71041B19C8DE}.Debug|x64.ActiveCfg = Debug|x64
-		{B357BAC7-529E-4D81-A0D2-71041B19C8DE}.Debug|x64.Build.0 = Debug|x64
-		{B357BAC7-529E-4D81-A0D2-71041B19C8DE}.Release|x64.ActiveCfg = Release|x64
-		{B357BAC7-529E-4D81-A0D2-71041B19C8DE}.Release|x64.Build.0 = Release|x64
 		{6708D7C9-EB84-48C6-960A-D8164DD08FC8}.Debug|x64.ActiveCfg = Debug|x64
 		{6708D7C9-EB84-48C6-960A-D8164DD08FC8}.Debug|x64.Build.0 = Debug|x64
 		{6708D7C9-EB84-48C6-960A-D8164DD08FC8}.Release|x64.ActiveCfg = Release|x64

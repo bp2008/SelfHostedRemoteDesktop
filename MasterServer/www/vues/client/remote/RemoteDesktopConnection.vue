@@ -34,6 +34,13 @@
 
 	export default {
 		components: { TopBar },
+		props:
+		{
+			computerId: {
+				type: Number,
+				required: true
+			}
+		},
 		data: function ()
 		{
 			return {
@@ -62,7 +69,7 @@
 				this.loading = true;
 				this.loadingError = null;
 				this.computer = { Name: "Loading" };
-				this.$store.dispatch("getClientComputerInfo", parseInt(this.$route.params.computerId)).then(c =>
+				this.$store.dispatch("getClientComputerInfo", parseInt(this.computerId)).then(c =>
 				{
 					this.computer = c;
 					let args = {

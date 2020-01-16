@@ -127,7 +127,7 @@ namespace SelfHostedRemoteDesktop.ServerConnect
 			State = HostConnectClientState.Connecting;
 			StateChanged(this, new StateChangedEventArgs(null, State));
 
-			Uri masterServerUri = new Uri(ServiceWrapper.settings.MasterServerAddress, UriKind.Absolute);
+			Uri masterServerUri = ServiceWrapper.settings.GetMasterServerUri();
 
 			// Ensure the certificate exists before we connect, because it can take a moment to create and we don't want the connection to time out.
 			IdentityVerification.EnsureClientCertificateExists();

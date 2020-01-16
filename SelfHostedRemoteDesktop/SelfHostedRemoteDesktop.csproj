@@ -53,6 +53,9 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Costura, Version=1.6.2.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.1.6.2\lib\dotnet\Costura.dll</HintPath>
@@ -89,6 +92,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientConnect\StreamThreadArgs.cs" />
     <Compile Include="Config\Settings.cs" />
     <Compile Include="CursorHelper.cs" />
     <Compile Include="FragmentedImage.cs" />
@@ -122,6 +126,7 @@
     <Compile Include="Streamer\InputEmulator.cs" />
     <Compile Include="Streamer\StreamerStaticMain.cs" />
     <Compile Include="WebSocketServer.cs" />
+    <Compile Include="ClientConnect\SHRDWebSocketClientHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -148,10 +153,6 @@
     <ProjectReference Include="..\SHRDLib\SHRDLib.csproj">
       <Project>{015f6074-f1c4-4927-92c2-cab7e27c6b54}</Project>
       <Name>SHRDLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\websocket-sharp\websocket-sharp.csproj">
-      <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
-      <Name>websocket-sharp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

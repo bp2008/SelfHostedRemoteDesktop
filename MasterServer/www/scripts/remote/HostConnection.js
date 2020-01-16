@@ -6,22 +6,35 @@ import { WebSocketStreamer, WebSocketState } from 'appRoot/scripts/remote/WebSoc
 export default function HostConnection(args)
 {
 	let self = this;
-	let clientSettings = new GetNamespaceLocalStorage(args.computerId.toString());
+	let clientSettings = {};
 	let renderer = null;
 	let inputCatcher = null;
 	let webSocketStreamer = null;
+	let unbindClientSettingsWatcher = null;
 
 	this.onSocketStateChanged = null;
 
 	let Initialize = function ()
 	{
+		myApp.$store.dispatch('getComputerSpecificSettings', args.computerId).then(cs =>
+		{
+			clientSettings = cs;
+			unbindClientSettingsWatcher = myApp.$watch(() => cs, clientSettingsChanged, { deep: true });
+		}
+		).catch(err =>
+		{
+			toaster.error(err);
+		});
 		renderer = new DesktopVideoRenderer(args.canvas);
 		//inputCatcher = new InputCatcher(args.canvas);
 		webSocketStreamer = new WebSocketStreamer(args.computerId, renderer);
 		webSocketStreamer.onFrameReceived = onFrameReceived;
 		webSocketStreamer.onStateChanged = onSocketStateChanged;
 	};
-
+	let clientSettingsChanged = function ()
+	{
+		webSocketStreamer.setStreamSettings(clientSettings);
+	};
 	this.IsConnected = function ()
 	{
 		return webSocketStreamer.getReadyState() === WebSocketState.Open;
@@ -39,6 +52,8 @@ export default function HostConnection(args)
 	this.Dispose = function ()
 	{
 		self.Disconnect();
+		if (unbindClientSettingsWatcher)
+			unbindClientSettingsWatcher();
 		//inputCatcher.Dispose();
 	};
 	let onSocketStateChanged = function (state)
@@ -50,6 +65,7 @@ export default function HostConnection(args)
 		else if (state === WebSocketState.Open)
 		{
 			console.log("HostConnection", "WebSocketState.Open");
+			webSocketStreamer.setStreamSettings(clientSettings);
 			webSocketStreamer.startStreaming();
 		}
 		else if (state === WebSocketState.Closing)

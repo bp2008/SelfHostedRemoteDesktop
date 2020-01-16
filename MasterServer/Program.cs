@@ -18,7 +18,7 @@ namespace MasterServer
 		{
 			if (Environment.UserInteractive)
 			{
-				ConsoleAppHelper.AllocateConsole();
+				BPUtil.NativeWin.WinConsole.Initialize();
 				Console.WriteLine("Master Server - Self Hosted Remote Desktop");
 				Console.WriteLine("User-interactive environment detected.  Running as a console application.");
 				try
