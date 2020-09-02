@@ -10,7 +10,7 @@
         "@deveodk/vue-toastr": "^1.0.4",
         "@formschema/native": "^1.1.1",
         "babel-polyfill": "^6.26.0",
-        "bootstrap-vue": "^2.0.0-rc.11",
+        "bootstrap-vue": "^2.0.0-rc.12",
         "crypto-js": "3.1.9-1",
         "jquery": "^1.9.1",
         "vue": "^2.5.16",
