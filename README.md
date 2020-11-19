@@ -18,7 +18,7 @@ Self Hosted Remote Desktop (**SHRD** for short) is an open-source remote desktop
 | Web client                           | ✅ | ✅ | ❌ | ✅ |
 | Native clients                       | ❌ | ✅ | ✅ | ❌ |
 | Unlimited concurrent sessions        | ✅ | ❌ | ✅ | ✅ |
-| Remote audio                         | ❌ | ✅ | ❌ | ✅ |
+| Remote audio                         | ❌ | ✅ | ❌ | ❌ |
 
 Of course, the above table is a little unfair because TeamViewer has had years of professional (paid) development and has amassed many features I do not care about, such as remote printing.
 
