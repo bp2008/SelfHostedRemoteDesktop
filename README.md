@@ -5,22 +5,24 @@ Self Hosted Remote Desktop (**SHRD** for short) is an open-source remote desktop
 
 ## Comparison with other remote-desktop tools and services
 
-|                               | SHRD     | TeamViewer | VNC          |
-| ----------------------------- | -------- | ---------- | ------------ |
-| Free version available        | ✅ | ✅ | ✅ |
-| Free for commercial use       | ✅ | ❌ | ✅ |
-| Open Source                   | ✅ | ❌ | ✅ |
-| Easy host deployment for technologically-challenged users (no firewall modifications)  | ✅ | ✅ | ❌ |
-| Remotely access many operating systems  | Windows 8+ only | ✅ Cross-Platform | ✅ Cross-Platform |
-| Run your own centralized server         | ✅ Windows or Linux | ❌ | ❌ |
-| Use without a centralized server (direct connections) | ❌ | ❌ | ✅ |
-| Peer-to-peer connections for minimal latency | ❌ (eventually) | ✅ | ✅ |
-| Web client                           | ✅ | ✅ | ❌ |
-| Native clients                       | ❌ | ✅ | ✅ |
-| Unlimited concurrent sessions        | ✅ | ❌ | ✅ |
-| Remote audio                         | ❌ | ✅ | ❌ |
+|                               | SHRD     | TeamViewer | VNC          | MeshCentral  |
+| ----------------------------- | -------- | ---------- | ------------ |--------------|
+| Free version available        | ✅ | ✅ | ✅ | ✅ |
+| Free for commercial use       | ✅ | ❌ | ✅ | ✅ |
+| Open Source                   | ✅ | ❌ | ✅ | ✅ |
+| Easy host deployment for technologically-challenged users (no firewall modifications)  | ✅ | ✅ | ❌ | ✅ Must load a complex web URL |
+| Remotely access many operating systems  | Windows 8+ only | ✅ Cross-Platform | ✅ Cross-Platform | ✅ Cross-Platform |
+| Run your own centralized server         | ✅ Windows or Linux | ❌ | ❌ | ✅ Cross-Platform |
+| Use without a centralized server (direct connections) | ❌ | ❌ | ✅ | ❌ |
+| Peer-to-peer connections for minimal latency | ❌ (eventually) | ✅ | ✅ | ✅ |
+| Web client                           | ✅ | ✅ | ❌ | ✅ |
+| Native clients                       | ❌ | ✅ | ✅ | ❌ |
+| Unlimited concurrent sessions        | ✅ | ❌ | ✅ | ✅ |
+| Remote audio                         | ❌ | ✅ | ❌ | ✅ |
 
 Of course, the above table is a little unfair because TeamViewer has had years of professional (paid) development and has amassed many features I do not care about, such as remote printing.
+
+**Update 2020-11-19:** I've discovered [MeshCentral](https://github.com/Ylianst/MeshCentral), an impressive application that shares most of the goals of this project, but is much more ambitious (and actually usable).
 
 ## Design
 
